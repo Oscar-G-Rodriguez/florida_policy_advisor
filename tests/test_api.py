@@ -23,8 +23,13 @@ def test_advice_shape():
     assert response.status_code == 200
     data = response.json()
     assert "summary" in data
+    assert "outlook_summary" in data
+    assert "outlook" in data
+    assert "forecast_info" in data
+    assert "objectives" in data
     assert "evidence" in data
     assert "options" in data
+    assert "policy_bundles" in data
     assert "risks" in data
     assert "citations" in data
     assert len(data["citations"]) >= 1

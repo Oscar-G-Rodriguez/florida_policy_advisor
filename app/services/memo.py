@@ -37,12 +37,19 @@ def render_memo(request: AdviceRequest, advice: AdviceResponse) -> str:
         f"- Time horizon: {request.time_horizon}",
         f"- Budget sensitivity: {_format_budget(request.budget_sensitivity)}",
         f"- Policy lens: {request.policy_lens}",
+    ]
+    if advice.objectives:
+        memo_lines.append("- Objectives:")
+        for sector, objective in advice.objectives.items():
+            memo_lines.append(f"  - {sector}: {objective}")
+
+    memo_lines.extend([
         "",
         "## Executive summary",
         advice.summary,
         "",
         "## Evidence",
-    ]
+    ])
 
     for item in advice.evidence:
         citations = " ".join([f"[^{citation_id}]" for citation_id in item.citations])
@@ -63,6 +70,34 @@ def render_memo(request: AdviceRequest, advice: AdviceResponse) -> str:
     memo_lines.append("## Risks and considerations")
     for risk in advice.risks:
         memo_lines.append(f"- {risk}")
+
+    if advice.policy_bundles:
+        memo_lines.append("")
+        memo_lines.append("## Recommended policy bundles")
+        for bundle in advice.policy_bundles:
+            memo_lines.append(f"### {bundle.name}")
+            memo_lines.append(f"- Score: {bundle.score}")
+            memo_lines.append(f"- Rationale: {bundle.rationale}")
+            if bundle.tradeoffs:
+                memo_lines.append(f"- Tradeoffs: {', '.join(bundle.tradeoffs)}")
+            memo_lines.append("")
+
+    memo_lines.append("")
+    memo_lines.append("## Outlook")
+    if advice.outlook_summary:
+        memo_lines.append(advice.outlook_summary)
+        memo_lines.append("")
+    if advice.outlook:
+        for item in advice.outlook:
+            citations = " ".join([f"[^{citation_id}]" for citation_id in item.citations])
+            unit = f" {item.unit}" if item.unit else ""
+            memo_lines.append(
+                f"- {item.metric} ({item.sector}, {item.horizon}): "
+                f"{item.predicted_value:.2f}{unit} ({item.direction}). {citations}"
+            )
+    if advice.forecast_info:
+        memo_lines.append("")
+        memo_lines.append(f"Forecast info: {advice.forecast_info}")
 
     memo_lines.append("")
     memo_lines.append("## Citations")

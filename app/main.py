@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.core.citations import validate_response_citations
 from app.data.refresh import refresh_all
@@ -9,17 +13,18 @@ from app.data.registry import list_datasets
 from app.models import AdviceRequest, AdviceResponse, MemoRequest, MemoResponse
 from app.services.advisor import generate_advice
 from app.services.memo import save_memo
+from app.web import get_static_dir
 
 app = FastAPI(title="Florida Policy Advisor", version="0.1.0")
 
+allowed_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"] ,
+    allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/health")
 async def health() -> dict:
@@ -56,6 +61,26 @@ async def memo(request: MemoRequest) -> MemoResponse:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     memo_path, memo_markdown = save_memo(request.inputs, advice)
     return MemoResponse(memo_path=memo_path, memo_markdown=memo_markdown)
+
+
+static_dir = get_static_dir()
+if static_dir.exists():
+    assets_dir = static_dir / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/")
+    async def serve_index() -> FileResponse:
+        return FileResponse(static_dir / "index.html")
+
+    @app.get("/{path:path}")
+    async def serve_spa(path: str) -> FileResponse:
+        if path.startswith("api") or path in {"health", "docs", "openapi.json"}:
+            raise HTTPException(status_code=404, detail="Not found.")
+        candidate = static_dir / path
+        if candidate.exists() and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(static_dir / "index.html")
 
 
 if __name__ == "__main__":

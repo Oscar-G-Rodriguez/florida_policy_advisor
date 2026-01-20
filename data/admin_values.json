@@ -1,0 +1,32 @@
+{
+  "sector_weights": {
+    "labor_market": 1.1,
+    "housing": 1.2,
+    "fiscal": 1.0,
+    "education": 1.0,
+    "health": 1.0,
+    "climate": 0.9,
+    "infrastructure": 0.9,
+    "environment": 0.9,
+    "public_safety": 1.0,
+    "energy": 0.9,
+    "broadband": 0.8,
+    "demographics": 0.8,
+    "business_dynamism": 1.0,
+    "agriculture": 0.8,
+    "general": 0.7
+  },
+  "objective_weights": {
+    "improve": 1.2,
+    "stabilize": 1.0,
+    "resilience": 1.1
+  },
+  "lens_bias": {
+    "equity": 0.55,
+    "market": 0.45,
+    "speed": 0.5,
+    "cost": 0.5
+  },
+  "feasibility_weight": 0.35,
+  "risk_weight": 0.25
+}

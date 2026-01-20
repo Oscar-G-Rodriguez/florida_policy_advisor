@@ -33,6 +33,13 @@ def validate_response_citations(response: AdviceResponse) -> None:
             if citation_id not in citation_ids:
                 raise ValueError(f"Evidence references unknown citation_id: {citation_id}")
 
+    for outlook in response.outlook:
+        if outlook.predicted_value is not None and not outlook.citations:
+            raise ValueError(f"Forecast without citations: {outlook.metric}")
+        for citation_id in outlook.citations:
+            if citation_id not in citation_ids:
+                raise ValueError(f"Forecast references unknown citation_id: {citation_id}")
+
     for option in response.options:
         _validate_item_has_citations(option.description, [], f"option:{option.title}")
         for bullet in option.pros + option.cons:

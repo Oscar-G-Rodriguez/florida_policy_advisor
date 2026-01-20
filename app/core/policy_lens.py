@@ -18,31 +18,46 @@ LENSES: Dict[str, LensWeights] = {
 }
 
 
-def normalize_tag(value: str) -> float:
+def normalize_tag(value: str | float | int) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
     mapping = {"low": 1.0, "medium": 2.0, "high": 3.0}
     return mapping.get(value, 2.0)
 
 
-def score_option(option: Dict[str, str], lens: LensWeights, budget_sensitivity: float) -> float:
+def score_option(
+    option: Dict[str, str],
+    lens: LensWeights,
+    budget_sensitivity: float,
+    urgency: float = 0.0,
+) -> float:
     cost_score = normalize_tag(option.get("cost", "medium"))
     speed_score = normalize_tag(option.get("speed", "medium"))
     equity_score = normalize_tag(option.get("equity", "medium"))
     market_score = normalize_tag(option.get("market", "medium"))
 
     cost_penalty = cost_score * budget_sensitivity * lens.cost_weight
+    urgency = max(0.0, min(1.0, urgency))
+    speed_boost = speed_score * lens.speed_weight * urgency
     score = (
         speed_score * lens.speed_weight
         + equity_score * lens.equity_weight
         + market_score * lens.market_weight
+        + speed_boost
         - cost_penalty
     )
     return score
 
 
-def rank_options(options: List[Dict[str, str]], policy_lens: str, budget_sensitivity: float) -> List[Dict[str, str]]:
+def rank_options(
+    options: List[Dict[str, str]],
+    policy_lens: str,
+    budget_sensitivity: float,
+    urgency: float = 0.0,
+) -> List[Dict[str, str]]:
     lens = LENSES.get(policy_lens, LENSES["market"])
     scored = [
-        (score_option(option, lens, budget_sensitivity), option)
+        (score_option(option, lens, budget_sensitivity, urgency), option)
         for option in options
     ]
     scored.sort(key=lambda item: item[0], reverse=True)
