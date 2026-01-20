@@ -1,0 +1,14 @@
+{
+  "bls_unemployment": {
+    "retrieval_date": "2026-01-15",
+    "last_refresh": "2026-01-15"
+  },
+  "census_acs_fl_county": {
+    "retrieval_date": "2026-01-15",
+    "last_refresh": "2026-01-15"
+  },
+  "fred_macro": {
+    "retrieval_date": "2026-01-15",
+    "last_refresh": "2026-01-15"
+  }
+}

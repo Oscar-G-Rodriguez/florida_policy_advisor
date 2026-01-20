@@ -1,0 +1,4 @@
+county_fips,county_name,median_household_income,median_gross_rent,poverty_rate
+12086,Miami-Dade County, Florida,62350,1725,0.154
+12095,Orange County, Florida,65320,1610,0.120
+12031,Duval County, Florida,58790,1465,0.138
