@@ -38,6 +38,6 @@ if (-not (Test-Path $python)) {
 }
 
 & $python @pyArgs -m pip install pyinstaller
-& $python @pyArgs -m pyinstaller --onefile --name FloridaPolicyAdvisor --add-data "app\static;app\static" --add-data "data;data" --add-data "outputs;outputs" app\packaged.py
+& $python @pyArgs -m PyInstaller --onefile --name FloridaPolicyAdvisor --add-data "app\static;app\static" --add-data "data;data" --add-data "outputs;outputs" app\packaged.py
 
 Write-Host "Built dist\FloridaPolicyAdvisor.exe"

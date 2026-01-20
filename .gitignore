@@ -7,3 +7,9 @@ outputs/memos/*
 !outputs/memos/.gitkeep
 *.db
 data/raw/
+.claude/
+plan.md
+PRD.md
+ralph.ps1
+PROMPT.md
+activity.md

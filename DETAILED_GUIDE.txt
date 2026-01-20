@@ -1,0 +1,351 @@
+Florida Policy Advisor - Full Technical Guide
+===========================================
+
+This document is a detailed, plain-text explanation of how the program works,
+its capabilities, its audience, and how to initialize and reproduce it.
+
+--------------------------------------------------------------------------
+
+1) SYSTEM OVERVIEW
+------------------
+
+Purpose and audience
+- Audience: state officials, policy analysts, agency staff, and advisors.
+- Purpose: generate evidence-backed policy advice, multi-sector forecasts,
+  and ranked policy bundles. It is decision support, not decision automation.
+
+Architecture (text diagram)
+
+[Frontend (React/Vite)]
+    - Input form (issue area, geography, horizon, lens, objectives)
+    - Outlook + evidence + bundles + memo download
+        |
+        | POST /api/advice
+        | POST /api/memo
+        v
+[FastAPI backend]
+    - app/main.py (API + static UI serving)
+    - app/services/advisor.py (orchestration)
+        |
+        +--> app/services/forecast.py (multifactor outlook)
+        +--> app/services/policy_engine.py (policy scoring + bundles)
+        +--> app/services/memo.py (memo rendering)
+        +--> app/core/citations.py (numeric claims must be cited)
+        +--> app/core/values.py (administration values)
+        +--> app/services/policy_library.py (policy catalog)
+        +--> app/data/loaders/* (data ingestion)
+        |
+        v
+[data/processed/*]  [data/raw/*]  [outputs/memos/*]
+
+Modules and what they do
+- app/main.py: FastAPI routes, CORS, static UI serving when bundled.
+- app/services/advisor.py: builds evidence, forecast, policy scoring,
+  and assembles API response.
+- app/services/forecast.py: forecast model(s), feature table, outlook.
+- app/services/policy_engine.py: pressure scoring, ranking, bundles.
+- app/services/policy_library.py: policy catalog + effects matrix.
+- app/services/memo.py: markdown memo rendering and storage.
+- app/data/loaders/*.py: data refresh from external APIs (BLS, FRED, ACS).
+- app/data/registry.py: dataset metadata and refresh state.
+- app/core/citations.py: ensures numeric claims always have citations.
+- app/core/values.py: loads admin weights for sector/objective/lens.
+
+Data flow (runtime)
+1) User submits inputs from UI.
+2) Backend loads processed datasets.
+3) Evidence claims are built with citations.
+4) Forecast engine creates multi-sector outlook.
+5) Policy engine scores policies + bundles.
+6) API response returned; memo can be generated.
+
+User flow (typical)
+- Select All sectors (holistic)
+- Set objectives (global or per sector)
+- Generate Advice
+- Review outlook, evidence, bundles
+- Download memo
+
+--------------------------------------------------------------------------
+
+2) AI DETAILS
+-------------
+
+Model types
+- Multifactor MLP (multi-output) for cross-sector forecasting.
+- Fallback per-metric trend model if multifactor is not feasible.
+
+Features
+- Each metric is resampled to monthly frequency.
+- Metrics are merged into a single feature table with forward-fill.
+- The multifactor model predicts all metrics at once.
+
+Training cadence
+- Trained on demand at request time.
+- No persistent weights stored by default.
+
+Baselines
+- Baseline = latest observed value for each metric.
+- Forecast gap = predicted - baseline.
+
+Explainability approach
+- Transparent scoring pipeline:
+  forecast -> pressure -> effects matrix -> policy score.
+- Output explicitly includes outlook and citations.
+
+Failure modes
+- Sparse data: forecast omitted or fallback used.
+- Missing datasets: fewer outlook items.
+- CUDA unavailable: CPU fallback.
+- Data revisions: outcomes may shift.
+
+--------------------------------------------------------------------------
+
+3) VALIDATION
+-------------
+
+Offline metrics (exact commands)
+- Unit/API shape checks:
+  .\.venv\Scripts\Activate.ps1
+  pytest
+
+Backtests
+- Not implemented yet (current validation is structural and citation-based).
+
+Known limitations
+- Forecast accuracy limited by data depth and coverage.
+- Policy effects are heuristic, not causal estimates.
+- Cross-sector interactions are approximate.
+
+--------------------------------------------------------------------------
+
+4) DATA PROVENANCE
+------------------
+
+Active datasets (currently loaded in code)
+- BLS LAUS (unemployment)
+  URL: https://api.bls.gov/publicAPI/v2/timeseries/data/
+  License: public domain
+- FRED (GDP, unemployment)
+  URL: https://api.stlouisfed.org/fred/
+  License: FRED Terms of Use
+- Census ACS (income, rent, poverty, vacancy, rent burden, home value)
+  URL: https://api.census.gov/data.html
+  License: public domain
+
+Registered datasets (ready for drop-in CSVs)
+- NCES CCD: https://nces.ed.gov/ccd/
+- CDC PLACES: https://www.cdc.gov/places/
+- FEMA NRI: https://hazards.fema.gov/nri/
+- FHWA HPMS: https://highways.dot.gov/safety/data-analysis-tools/rsdp/rsdp-tools/highway-performance-monitoring-system-hpms
+- EPA Air Data: https://www.epa.gov/air-data
+- FBI Crime Data: https://cde.ucr.cjis.gov/
+- EIA Open Data: https://www.eia.gov/opendata/
+- FCC Broadband: https://broadbandmap.fcc.gov/
+- Census PopEst: https://www.census.gov/data/developers/data-sets/popest-popproj/popest.html
+- Census BDS: https://www.census.gov/programs-surveys/bds/data.API.html
+- USDA NASS: https://quickstats.nass.usda.gov/
+
+Where retrieval dates are stored
+- data/registry_state.json
+
+Refresh cadence
+- Manual: .\scripts\refresh_data.ps1
+- ACS multi-year: ACS_YEARS env var
+
+--------------------------------------------------------------------------
+
+5) SCORING SYSTEM (HIGH LEVEL)
+------------------------------
+
+Pressure score
+- Calculated per metric from forecast gap and baseline.
+- Weighted by sector and objective (admin values).
+
+Policy score components
+- Effects matrix alignment with forecast pressure.
+- Policy lens bias (market vs equity).
+- Cost penalty (budget sensitivity).
+- Feasibility and risk penalties.
+- Speed bonus (especially under urgency).
+
+Policy bundles
+- Bundles are combinations of 2-3 top policies.
+- Effects are aggregated and rescored.
+- Bundles are ranked by overall score.
+
+--------------------------------------------------------------------------
+
+6) RESPONSIBLE-USE GUARDRAILS
+-----------------------------
+
+- Numeric claims require dataset citations.
+- Forecasts labeled as outlook, not certainty.
+- Market/equity lens is framed as prioritization, not ideology.
+- Outputs are advisory for human decision makers.
+
+--------------------------------------------------------------------------
+
+7) REPRODUCIBILITY
+------------------
+
+Windows setup (exact steps)
+1) python -m venv .venv
+2) .\.venv\Scripts\Activate.ps1
+3) pip install -r requirements.txt
+4) cd frontend
+5) npm install
+6) cd ..
+7) .\scripts\dev.ps1
+
+Pinned dependencies
+- requirements.txt, requirements-ml.txt
+- frontend/package.json
+
+Tests
+- pytest
+
+Hardware assumptions
+- CPU works everywhere.
+- CUDA optional for GPU acceleration.
+
+--------------------------------------------------------------------------
+
+8) METRIC DICTIONARY (metric_id -> dataset)
+-------------------------------------------
+
+metric_id | sector | metric | dataset_id | unit | preference
+
+labor_unemployment_bls | labor_market | Unemployment rate (BLS) | bls_unemployment | % | lower_is_better
+labor_unemployment_fred | labor_market | Unemployment rate (FRED) | fred_macro | % | lower_is_better
+fiscal_real_gdp | fiscal | Real GDP | fred_macro | USD | higher_is_better
+housing_median_rent | housing | Median gross rent | census_acs_fl_county | USD | lower_is_better
+housing_rent_burden | housing | Rent-to-income ratio | census_acs_fl_county | ratio | lower_is_better
+housing_vacancy_rate | housing | Housing vacancy rate | census_acs_fl_county | ratio | higher_is_better
+housing_home_value | housing | Median home value | census_acs_fl_county | USD | lower_is_better
+general_population | general | Population | census_acs_fl_county | count | higher_is_better
+education_grad_rate | education | High school graduation rate | nces_ccd_grad | % | higher_is_better
+health_chronic_rate | health | Chronic disease prevalence | cdc_places | % | lower_is_better
+climate_risk_index | climate | FEMA National Risk Index | fema_nri | index | lower_is_better
+infrastructure_road_condition | infrastructure | Road condition index | fhwa_hpms | index | higher_is_better
+environment_pm25 | environment | PM2.5 concentration | epa_air | ug/m3 | lower_is_better
+public_safety_violent_crime | public_safety | Violent crime rate | fbi_ucr | per_100k | lower_is_better
+energy_retail_price | energy | Retail electricity price | eia_energy | cents/kwh | lower_is_better
+broadband_access | broadband | Broadband availability | fcc_bdc | % | higher_is_better
+demographics_net_migration | demographics | Net migration | census_popest | count | higher_is_better
+business_startup_rate | business_dynamism | Startup rate | census_bds | % | higher_is_better
+agriculture_yield | agriculture | Crop yield index | usda_nass | index | higher_is_better
+
+Note: For datasets without loaders, place CSVs in:
+- data/processed/<dataset_id>/metrics.csv
+- or data/processed/<dataset_id>/<metric_id>.csv
+Columns should include: date (or year) + value column matching the metric.
+
+--------------------------------------------------------------------------
+
+9) POLICY CATALOG APPENDIX
+--------------------------
+
+Policy id | Title | Sectors | Effects (metric_id: strength)
+
+rapid_employer_outreach | Rapid employer outreach and placement support | labor_market | labor_unemployment_bls:0.35, labor_unemployment_fred:0.30
+skills_apprenticeship | Sector-based upskilling and apprenticeships | labor_market, education | labor_unemployment_bls:0.25, labor_unemployment_fred:0.20, education_grad_rate:0.15, business_startup_rate:0.10
+childcare_transport_support | Childcare and transportation access | labor_market, housing | labor_unemployment_bls:0.20, labor_unemployment_fred:0.20, housing_rent_burden:0.15
+affordable_housing_acceleration | Affordable housing pipeline acceleration | housing | housing_median_rent:0.35, housing_rent_burden:0.30, housing_vacancy_rate:0.25, housing_home_value:-0.10
+zoning_modernization | Zoning and permitting modernization | housing, infrastructure | housing_median_rent:0.25, housing_vacancy_rate:0.20, housing_home_value:-0.05
+rental_assistance_preservation | Rental assistance and preservation | housing | housing_rent_burden:0.35, housing_median_rent:0.15
+fiscal_reserve_strategy | Fiscal reserve and stabilization strategy | fiscal | fiscal_real_gdp:0.05
+performance_budgeting | Performance budgeting and program reallocation | fiscal, general | fiscal_real_gdp:0.10
+early_learning_support | Early learning and tutoring acceleration | education | education_grad_rate:0.25, labor_unemployment_bls:0.10
+behavioral_health_access | Behavioral health access expansion | health, labor_market | health_chronic_rate:0.20, labor_unemployment_fred:0.10
+chronic_prevention | Chronic disease prevention investment | health | health_chronic_rate:0.30
+flood_resilience | Flood resilience and mitigation program | climate, infrastructure | climate_risk_index:0.30, infrastructure_road_condition:0.10
+transport_asset_management | Transportation asset management | infrastructure | infrastructure_road_condition:0.30
+air_quality_enforcement | Targeted air quality enforcement | environment, health | environment_pm25:0.25, health_chronic_rate:0.10
+public_safety_violence_prevention | Violence prevention and community safety | public_safety | public_safety_violent_crime:0.35
+grid_modernization | Grid modernization and energy efficiency | energy, climate | energy_retail_price:0.15, climate_risk_index:0.10
+broadband_last_mile | Last-mile broadband expansion | broadband, education, business_dynamism | broadband_access:0.35, education_grad_rate:0.10, business_startup_rate:0.10
+migration_attraction | Talent attraction and retention | demographics, labor_market | demographics_net_migration:0.30, labor_unemployment_bls:0.10
+small_business_capital | Small business capital access | business_dynamism, labor_market | business_startup_rate:0.35, labor_unemployment_fred:0.10
+agriculture_resilience | Climate-smart agriculture and water efficiency | agriculture, climate | agriculture_yield:0.30, climate_risk_index:0.10
+
+--------------------------------------------------------------------------
+
+10) API JSON SCHEMA (SIMPLIFIED)
+--------------------------------
+
+AdviceRequest
+{
+  issue_area: "all" | <sector>,
+  geography: { level: "state"|"county", value: "Florida"|"Miami-Dade"|... },
+  time_horizon: "near_term"|"mid_term"|"long_term",
+  budget_sensitivity: 0.0-1.0,
+  policy_lens: "market"|"equity",
+  objective_mode: "improve"|"stabilize"|"resilience",
+  objectives: { <sector>: "improve"|"stabilize"|"resilience" } | null
+}
+
+AdviceResponse
+{
+  summary: string,
+  outlook_summary: string,
+  outlook: [
+    {
+      metric_id: string,
+      sector: string,
+      metric: string,
+      horizon: string,
+      predicted_value: number,
+      baseline_value: number|null,
+      unit: string|null,
+      direction: "improving"|"worsening"|"stable"|"mixed"|"unclear",
+      citations: [string],
+      method_note: string|null
+    }
+  ],
+  forecast_info: string,
+  objectives: { <sector>: <objective> },
+  evidence: [
+    { label: string, claim: string, citations: [string] }
+  ],
+  options: [
+    {
+      title: string,
+      description: string,
+      pros: [string],
+      cons: [string],
+      implementation_notes: string,
+      sectors: [string],
+      impact: { <metric_id>: number } | null
+    }
+  ],
+  policy_bundles: [
+    {
+      name: string,
+      policies: [PolicyOption],
+      score: number,
+      rationale: string,
+      tradeoffs: [string]
+    }
+  ],
+  risks: [string],
+  citations: [
+    { citation_id: string, dataset_id: string, url: string, retrieval_date: string, note?: string }
+  ]
+}
+
+MemoRequest
+{
+  inputs: AdviceRequest,
+  advice?: AdviceResponse
+}
+
+MemoResponse
+{
+  memo_path: string,
+  memo_markdown: string
+}
+
+--------------------------------------------------------------------------
+
+END
