@@ -1,0 +1,471 @@
+{
+  "summary": "Evidence indicates labor market conditions that merit near-term monitoring and targeted actions.",
+  "outlook_summary": "Outlook suggests rising pressure in the selected sector over the chosen horizon.",
+  "outlook": [
+    {
+      "metric_id": "labor_unemployment_bls",
+      "sector": "labor_market",
+      "metric": "Unemployment rate (BLS)",
+      "horizon": "near term",
+      "predicted_value": 3.900000174840288,
+      "baseline_value": 3.2,
+      "unit": "%",
+      "direction": "worsening",
+      "citations": [
+        "bls_unemployment"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    },
+    {
+      "metric_id": "labor_unemployment_fred",
+      "sector": "labor_market",
+      "metric": "Unemployment rate (FRED)",
+      "horizon": "near term",
+      "predicted_value": 3.900000174840288,
+      "baseline_value": 3.2,
+      "unit": "%",
+      "direction": "worsening",
+      "citations": [
+        "fred_macro"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    },
+    {
+      "metric_id": "fiscal_real_gdp",
+      "sector": "fiscal",
+      "metric": "Real GDP",
+      "horizon": "near term",
+      "predicted_value": 1335987.3333333337,
+      "baseline_value": 1267890.0,
+      "unit": "USD",
+      "direction": "improving",
+      "citations": [
+        "fred_macro"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    },
+    {
+      "metric_id": "housing_median_rent",
+      "sector": "housing",
+      "metric": "Median gross rent",
+      "horizon": "near term",
+      "predicted_value": 1835.5554199218757,
+      "baseline_value": 1600.0,
+      "unit": "USD",
+      "direction": "worsening",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    },
+    {
+      "metric_id": "housing_rent_burden",
+      "sector": "housing",
+      "metric": "Rent-to-income ratio",
+      "horizon": "near term",
+      "predicted_value": 0.3140556017557783,
+      "baseline_value": 0.30893333333333334,
+      "unit": "ratio",
+      "direction": "stable",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    },
+    {
+      "metric_id": "housing_vacancy_rate",
+      "sector": "housing",
+      "metric": "Housing vacancy rate",
+      "horizon": "near term",
+      "predicted_value": 0.040333331873019504,
+      "baseline_value": 0.052,
+      "unit": "ratio",
+      "direction": "worsening",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    },
+    {
+      "metric_id": "housing_home_value",
+      "sector": "housing",
+      "metric": "Median home value",
+      "horizon": "near term",
+      "predicted_value": 372777.82291666657,
+      "baseline_value": 308333.3333333333,
+      "unit": "USD",
+      "direction": "worsening",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    },
+    {
+      "metric_id": "general_population",
+      "sector": "general",
+      "metric": "Population",
+      "horizon": "near term",
+      "predicted_value": 1911666.9999999995,
+      "baseline_value": 1783333.3333333333,
+      "unit": "count",
+      "direction": "improving",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "available",
+      "method_note": "Numpy linear fallback"
+    }
+  ],
+  "forecast_info": "Numpy linear fallback",
+  "objectives": {
+    "labor_market": "improve"
+  },
+  "evidence": [
+    {
+      "label": "Unemployment rate",
+      "claim": "Florida unemployment rate was 3.2% in 2025-12.",
+      "citations": [
+        "bls_unemployment"
+      ]
+    },
+    {
+      "label": "State output",
+      "claim": "Florida real GDP was 1,267,890 in 2024-01-01.",
+      "citations": [
+        "fred_macro"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "title": "Rapid employer outreach and placement support",
+      "description": "Coordinate with local employers to identify immediate openings and match job seekers quickly.",
+      "pros": [
+        "Fast-to-deploy support for displaced workers."
+      ],
+      "cons": [
+        "Relies on near-term labor demand being available."
+      ],
+      "implementation_notes": "Leverage workforce boards and existing employer networks.",
+      "sectors": [
+        "labor_market"
+      ],
+      "impact": {
+        "labor_unemployment_bls": 0.35,
+        "labor_unemployment_fred": 0.3
+      }
+    },
+    {
+      "title": "Small business capital access",
+      "description": "Expand loan guarantees and technical assistance for small businesses.",
+      "pros": [
+        "Supports entrepreneurship and job creation."
+      ],
+      "cons": [
+        "Requires underwriting discipline and oversight."
+      ],
+      "implementation_notes": "Partner with community lenders and incubators.",
+      "sectors": [
+        "business_dynamism",
+        "labor_market"
+      ],
+      "impact": {
+        "business_startup_rate": 0.35,
+        "labor_unemployment_fred": 0.1
+      }
+    },
+    {
+      "title": "Talent attraction and retention",
+      "description": "Incentivize in-migration of skilled workers and retain graduates.",
+      "pros": [
+        "Strengthens labor supply and innovation base."
+      ],
+      "cons": [
+        "Requires sustained incentives and quality-of-life investments."
+      ],
+      "implementation_notes": "Pair with housing affordability and job growth efforts.",
+      "sectors": [
+        "demographics",
+        "labor_market"
+      ],
+      "impact": {
+        "demographics_net_migration": 0.3,
+        "labor_unemployment_bls": 0.1
+      }
+    },
+    {
+      "title": "Performance budgeting and program reallocation",
+      "description": "Reallocate spending toward high-impact programs and sunset low-impact ones.",
+      "pros": [
+        "Improves return on public spending."
+      ],
+      "cons": [
+        "Requires strong data and stakeholder alignment."
+      ],
+      "implementation_notes": "Use outcome targets and multi-year reviews.",
+      "sectors": [
+        "fiscal",
+        "general"
+      ],
+      "impact": {
+        "fiscal_real_gdp": 0.1
+      }
+    },
+    {
+      "title": "Sector-based upskilling and apprenticeships",
+      "description": "Expand short-cycle credentials and apprenticeships aligned to regional demand.",
+      "pros": [
+        "Improves long-term earnings and mobility."
+      ],
+      "cons": [
+        "Training pipelines take time to scale."
+      ],
+      "implementation_notes": "Pair training with employer commitments and wraparound supports.",
+      "sectors": [
+        "labor_market",
+        "education"
+      ],
+      "impact": {
+        "labor_unemployment_bls": 0.25,
+        "labor_unemployment_fred": 0.2,
+        "education_grad_rate": 0.15,
+        "business_startup_rate": 0.1
+      }
+    },
+    {
+      "title": "Childcare and transportation access",
+      "description": "Expand access to childcare and transportation assistance for working households.",
+      "pros": [
+        "Boosts labor force participation and stability."
+      ],
+      "cons": [
+        "Requires coordination across agencies and providers."
+      ],
+      "implementation_notes": "Target high-need corridors and integrate with workforce placements.",
+      "sectors": [
+        "labor_market",
+        "housing"
+      ],
+      "impact": {
+        "labor_unemployment_bls": 0.2,
+        "labor_unemployment_fred": 0.2,
+        "housing_rent_burden": 0.15
+      }
+    },
+    {
+      "title": "Behavioral health access expansion",
+      "description": "Increase capacity for behavioral health and substance use services.",
+      "pros": [
+        "Addresses acute health and workforce barriers."
+      ],
+      "cons": [
+        "Requires workforce expansion and sustained funding."
+      ],
+      "implementation_notes": "Invest in provider pipeline and telehealth.",
+      "sectors": [
+        "health",
+        "labor_market"
+      ],
+      "impact": {
+        "health_chronic_rate": 0.2,
+        "labor_unemployment_fred": 0.1
+      }
+    }
+  ],
+  "policy_bundles": [
+    {
+      "name": "Rapid employer outreach and placement support + Small business capital access",
+      "policies": [
+        {
+          "title": "Rapid employer outreach and placement support",
+          "description": "Coordinate with local employers to identify immediate openings and match job seekers quickly.",
+          "pros": [
+            "Fast-to-deploy support for displaced workers."
+          ],
+          "cons": [
+            "Relies on near-term labor demand being available."
+          ],
+          "implementation_notes": "Leverage workforce boards and existing employer networks.",
+          "sectors": [
+            "labor_market"
+          ],
+          "impact": {
+            "labor_unemployment_bls": 0.35,
+            "labor_unemployment_fred": 0.3
+          }
+        },
+        {
+          "title": "Small business capital access",
+          "description": "Expand loan guarantees and technical assistance for small businesses.",
+          "pros": [
+            "Supports entrepreneurship and job creation."
+          ],
+          "cons": [
+            "Requires underwriting discipline and oversight."
+          ],
+          "implementation_notes": "Partner with community lenders and incubators.",
+          "sectors": [
+            "business_dynamism",
+            "labor_market"
+          ],
+          "impact": {
+            "business_startup_rate": 0.35,
+            "labor_unemployment_fred": 0.1
+          }
+        }
+      ],
+      "score": 0.684,
+      "rationale": "Targets labor_unemployment_fred, labor_unemployment_bls, business_startup_rate",
+      "tradeoffs": []
+    },
+    {
+      "name": "Rapid employer outreach and placement support + Small business capital access + Sector-based upskilling and apprenticeships",
+      "policies": [
+        {
+          "title": "Rapid employer outreach and placement support",
+          "description": "Coordinate with local employers to identify immediate openings and match job seekers quickly.",
+          "pros": [
+            "Fast-to-deploy support for displaced workers."
+          ],
+          "cons": [
+            "Relies on near-term labor demand being available."
+          ],
+          "implementation_notes": "Leverage workforce boards and existing employer networks.",
+          "sectors": [
+            "labor_market"
+          ],
+          "impact": {
+            "labor_unemployment_bls": 0.35,
+            "labor_unemployment_fred": 0.3
+          }
+        },
+        {
+          "title": "Small business capital access",
+          "description": "Expand loan guarantees and technical assistance for small businesses.",
+          "pros": [
+            "Supports entrepreneurship and job creation."
+          ],
+          "cons": [
+            "Requires underwriting discipline and oversight."
+          ],
+          "implementation_notes": "Partner with community lenders and incubators.",
+          "sectors": [
+            "business_dynamism",
+            "labor_market"
+          ],
+          "impact": {
+            "business_startup_rate": 0.35,
+            "labor_unemployment_fred": 0.1
+          }
+        },
+        {
+          "title": "Sector-based upskilling and apprenticeships",
+          "description": "Expand short-cycle credentials and apprenticeships aligned to regional demand.",
+          "pros": [
+            "Improves long-term earnings and mobility."
+          ],
+          "cons": [
+            "Training pipelines take time to scale."
+          ],
+          "implementation_notes": "Pair training with employer commitments and wraparound supports.",
+          "sectors": [
+            "labor_market",
+            "education"
+          ],
+          "impact": {
+            "labor_unemployment_bls": 0.25,
+            "labor_unemployment_fred": 0.2,
+            "education_grad_rate": 0.15,
+            "business_startup_rate": 0.1
+          }
+        }
+      ],
+      "score": 0.677,
+      "rationale": "Targets labor_unemployment_fred, labor_unemployment_bls, business_startup_rate",
+      "tradeoffs": []
+    },
+    {
+      "name": "Rapid employer outreach and placement support + Sector-based upskilling and apprenticeships",
+      "policies": [
+        {
+          "title": "Rapid employer outreach and placement support",
+          "description": "Coordinate with local employers to identify immediate openings and match job seekers quickly.",
+          "pros": [
+            "Fast-to-deploy support for displaced workers."
+          ],
+          "cons": [
+            "Relies on near-term labor demand being available."
+          ],
+          "implementation_notes": "Leverage workforce boards and existing employer networks.",
+          "sectors": [
+            "labor_market"
+          ],
+          "impact": {
+            "labor_unemployment_bls": 0.35,
+            "labor_unemployment_fred": 0.3
+          }
+        },
+        {
+          "title": "Sector-based upskilling and apprenticeships",
+          "description": "Expand short-cycle credentials and apprenticeships aligned to regional demand.",
+          "pros": [
+            "Improves long-term earnings and mobility."
+          ],
+          "cons": [
+            "Training pipelines take time to scale."
+          ],
+          "implementation_notes": "Pair training with employer commitments and wraparound supports.",
+          "sectors": [
+            "labor_market",
+            "education"
+          ],
+          "impact": {
+            "labor_unemployment_bls": 0.25,
+            "labor_unemployment_fred": 0.2,
+            "education_grad_rate": 0.15,
+            "business_startup_rate": 0.1
+          }
+        }
+      ],
+      "score": 0.642,
+      "rationale": "Targets labor_unemployment_bls, labor_unemployment_fred, education_grad_rate",
+      "tradeoffs": []
+    }
+  ],
+  "risks": [
+    "Short-term actions may not address longer-term structural constraints.",
+    "Capacity limitations could slow implementation without coordinated partners.",
+    "Data is subject to revision; monitor updates during implementation.",
+    "Forward-looking indicators can shift quickly; revisit the plan as new forecasts arrive."
+  ],
+  "citations": [
+    {
+      "citation_id": "census_acs_fl_county",
+      "dataset_id": "census_acs_fl_county",
+      "url": "https://api.census.gov/data.html",
+      "retrieval_date": "2026-01-15",
+      "note": "Census ACS 5-year Florida County Indicators"
+    },
+    {
+      "citation_id": "bls_unemployment",
+      "dataset_id": "bls_unemployment",
+      "url": "https://api.bls.gov/publicAPI/v2/timeseries/data/",
+      "retrieval_date": "2026-01-15",
+      "note": "BLS State Unemployment Rate (Florida)"
+    },
+    {
+      "citation_id": "fred_macro",
+      "dataset_id": "fred_macro",
+      "url": "https://api.stlouisfed.org/fred/",
+      "retrieval_date": "2026-01-15",
+      "note": "FRED Florida Macro Series"
+    }
+  ]
+}

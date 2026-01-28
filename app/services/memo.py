@@ -91,10 +91,17 @@ def render_memo(request: AdviceRequest, advice: AdviceResponse) -> str:
         for item in advice.outlook:
             citations = " ".join([f"[^{citation_id}]" for citation_id in item.citations])
             unit = f" {item.unit}" if item.unit else ""
-            memo_lines.append(
-                f"- {item.metric} ({item.sector}, {item.horizon}): "
-                f"{item.predicted_value:.2f}{unit} ({item.direction}). {citations}"
-            )
+            if item.predicted_value is None:
+                suffix = f" {citations}".rstrip()
+                memo_lines.append(
+                    f"- {item.metric} ({item.sector}, {item.horizon}): "
+                    f"No data available yet.{suffix}"
+                )
+            else:
+                memo_lines.append(
+                    f"- {item.metric} ({item.sector}, {item.horizon}): "
+                    f"{item.predicted_value:.2f}{unit} ({item.direction}). {citations}"
+                )
     if advice.forecast_info:
         memo_lines.append("")
         memo_lines.append(f"Forecast info: {advice.forecast_info}")

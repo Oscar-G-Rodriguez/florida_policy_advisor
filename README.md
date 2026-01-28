@@ -73,6 +73,11 @@ These keys are optional but recommended to refresh live datasets.
 Output:
 - `dist\FloridaPolicyAdvisor.exe`
 
+Notes:
+- The packaged app launches in an embedded desktop window (no browser).
+- `pywebview` is required for the desktop UI and is installed via `requirements.txt`.
+- Install the Microsoft Edge WebView2 Runtime if the window does not appear.
+
 ### Build a Windows installer (two clicks)
 - Double-click `BuildApp.cmd`
 - Then run `dist\FloridaPolicyAdvisor-Setup.exe`

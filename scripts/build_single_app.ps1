@@ -37,7 +37,10 @@ if (-not (Test-Path $python)) {
   $pyArgs = @("-3.12")
 }
 
+Push-Location $repo
+& $python @pyArgs -m pip install -r requirements.txt
 & $python @pyArgs -m pip install pyinstaller
-& $python @pyArgs -m PyInstaller --onefile --name FloridaPolicyAdvisor --add-data "app\static;app\static" --add-data "data;data" --add-data "outputs;outputs" app\packaged.py
+& $python @pyArgs -m PyInstaller --onefile --name FloridaPolicyAdvisor --collect-all webview --hidden-import webview.platforms.edgechromium --add-data "app\static;app\static" --add-data "data;data" --add-data "outputs;outputs" app\packaged.py
+Pop-Location
 
 Write-Host "Built dist\FloridaPolicyAdvisor.exe"

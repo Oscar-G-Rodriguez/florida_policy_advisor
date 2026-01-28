@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const ISSUE_AREAS = [
   { value: "all", label: "All sectors (holistic)" },
@@ -18,6 +18,8 @@ const ISSUE_AREAS = [
   { value: "agriculture", label: "Agriculture & food systems" },
   { value: "general", label: "General" },
 ];
+
+const ISSUE_AREA_LABELS = Object.fromEntries(ISSUE_AREAS.map((item) => [item.value, item.label]));
 
 const GEOGRAPHIES = [
   { value: "state", label: "State of Florida" },
@@ -78,9 +80,11 @@ export default function App() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [advice, setAdvice] = useState(null);
+  const [adviceContext, setAdviceContext] = useState(null);
   const [memoPath, setMemoPath] = useState("");
   const [serverStatus, setServerStatus] = useState("unchecked");
   const [serverCheckedAt, setServerCheckedAt] = useState("");
+  const [pressingTab, setPressingTab] = useState("overall");
 
   const geographyPayload = useMemo(() => {
     if (geography === "state") {
@@ -130,6 +134,7 @@ export default function App() {
           unit: "USD",
           direction: "worsening",
           citations: ["census_acs_fl_county"],
+          status: "available",
           method_note: "demo",
         },
         {
@@ -142,6 +147,7 @@ export default function App() {
           unit: "%",
           direction: "worsening",
           citations: ["bls_unemployment"],
+          status: "available",
           method_note: "demo",
         },
       ],
@@ -193,6 +199,49 @@ export default function App() {
     [customObjectives, customObjectivesEnabled, objectiveMode]
   );
 
+  const selectedIssueArea = adviceContext?.issue_area ?? issueArea;
+  const selectedIssueLabel =
+    ISSUE_AREA_LABELS[selectedIssueArea] || selectedIssueArea.replace("_", " ");
+
+  useEffect(() => {
+    if (!advice) return;
+    if (selectedIssueArea !== "all") {
+      setPressingTab("selected");
+    } else {
+      setPressingTab("overall");
+    }
+  }, [advice, selectedIssueArea]);
+
+  const getPressingItems = (items, sector) => {
+    if (!items || items.length === 0) return [];
+    const scoped = items.filter((item) => {
+      if (item.status !== "available") return false;
+      if (!sector || sector === "all") return true;
+      return item.sector === sector;
+    });
+    const worsening = scoped.filter((item) => item.direction === "worsening");
+    const scored = worsening.map((item) => {
+      if (item.baseline_value === null || item.predicted_value === null) {
+        return { item, score: 0 };
+      }
+      const scale = Math.abs(item.baseline_value) || 1;
+      const change = Math.abs(item.predicted_value - item.baseline_value) / scale;
+      return { item, score: change };
+    });
+    scored.sort((a, b) => b.score - a.score);
+    return scored.map((entry) => entry.item).slice(0, 4);
+  };
+
+  const pressingOverall = useMemo(() => {
+    if (!advice) return [];
+    return getPressingItems(advice.outlook, "all");
+  }, [advice]);
+
+  const pressingSelected = useMemo(() => {
+    if (!advice || selectedIssueArea === "all") return [];
+    return getPressingItems(advice.outlook, selectedIssueArea);
+  }, [advice, selectedIssueArea]);
+
   const handleGenerate = async () => {
     setLoading(true);
     setError("");
@@ -203,6 +252,7 @@ export default function App() {
       if (demoMode) {
         await new Promise((resolve) => setTimeout(resolve, 400));
         setAdvice(demoResponse);
+        setAdviceContext(adviceInputs);
       } else {
         const response = await fetch(`${API_BASE}/api/advice`, {
           method: "POST",
@@ -214,6 +264,7 @@ export default function App() {
         }
         const data = await response.json();
         setAdvice(data);
+        setAdviceContext(adviceInputs);
       }
     } catch (err) {
       setError(err.message || "Unexpected error");
@@ -303,6 +354,7 @@ export default function App() {
     setCustomObjectivesEnabled(false);
     setCustomObjectives(Object.fromEntries(SECTOR_OBJECTIVES.map((sector) => [sector, "improve"])));
     setAdvice(null);
+    setAdviceContext(null);
     setMemoPath("");
     setError("");
     setNotice("");
@@ -310,6 +362,7 @@ export default function App() {
 
   const handleClearResults = () => {
     setAdvice(null);
+    setAdviceContext(null);
     setMemoPath("");
     setError("");
     setNotice("");
@@ -351,7 +404,7 @@ export default function App() {
   };
 
   const formatForecastValue = (value, unit) => {
-    if (value === null || value === undefined || Number.isNaN(value)) return "N/A";
+    if (value === null || value === undefined || Number.isNaN(value)) return "No data";
     if (unit === "%") return `${value.toFixed(2)}%`;
     if (unit === "USD") {
       return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
@@ -359,6 +412,50 @@ export default function App() {
     if (unit === "ratio") return `${(value * 100).toFixed(1)}%`;
     if (unit === "count") return new Intl.NumberFormat("en-US").format(Math.round(value));
     return `${value.toFixed(2)} ${unit || ""}`.trim();
+  };
+
+  const renderPressingList = (items, emptyMessage) => {
+    if (!items.length) {
+      return <p className="muted">{emptyMessage}</p>;
+    }
+    return (
+      <ul className="pressing-list">
+        {items.map((item) => {
+          const hasValues =
+            item.predicted_value !== null &&
+            item.predicted_value !== undefined &&
+            item.baseline_value !== null &&
+            item.baseline_value !== undefined;
+          const delta = hasValues ? item.predicted_value - item.baseline_value : null;
+          const deltaLabel =
+            delta === null ? "Δ n/a" : `Δ ${delta > 0 ? "+" : ""}${formatForecastValue(delta, item.unit)}`;
+          const baselineLabel = hasValues
+            ? formatForecastValue(item.baseline_value, item.unit)
+            : "n/a";
+          const forecastLabel =
+            item.predicted_value === null || item.predicted_value === undefined
+              ? "n/a"
+              : formatForecastValue(item.predicted_value, item.unit);
+          const sectorLabel = ISSUE_AREA_LABELS[item.sector] || item.sector.replace("_", " ");
+          return (
+            <li key={`pressing-${item.metric_id || item.metric}`}>
+              <div className="pressing-row">
+                <div>
+                  <p className="pressing-title">{item.metric}</p>
+                  <p className="pressing-meta">
+                    {sectorLabel} · {item.horizon}
+                  </p>
+                </div>
+                <span className={`pressing-chip ${item.direction}`}>{item.direction}</span>
+              </div>
+              <p className="pressing-change">
+                Forecast {forecastLabel} · Latest {baselineLabel} · {deltaLabel}
+              </p>
+            </li>
+          );
+        })}
+      </ul>
+    );
   };
 
   return (
@@ -569,30 +666,48 @@ export default function App() {
               {advice.forecast_info && <span className="meta-chip">{advice.forecast_info}</span>}
             </div>
             <p className="muted">{advice.outlook_summary}</p>
-            {advice.outlook.length ? (
-              <div className="forecast-grid">
-                {advice.outlook.map((item) => (
-                  <div key={`${item.sector}-${item.metric}`} className="forecast-item">
-                    <div className="forecast-header">
-                      <span className="tag">{item.sector.replace("_", " ")}</span>
-                      <span className={`trend ${item.direction}`}>{item.direction}</span>
-                    </div>
-                    <h3>{item.metric}</h3>
-                    <p className="forecast-value">
-                      {formatForecastValue(item.predicted_value, item.unit)} by {item.horizon}
-                    </p>
-                    {item.baseline_value !== null && item.baseline_value !== undefined && (
-                      <p className="forecast-baseline">
-                        Latest observed: {formatForecastValue(item.baseline_value, item.unit)}
-                      </p>
-                    )}
-                    <div className="citations">Citations: {item.citations.join(", ")}</div>
-                  </div>
-                ))}
+            <div className="pressing-section">
+              <div className="pressing-header">
+                <h3>Most pressing issues</h3>
+                <p className="muted">Ranked by forecast change vs latest observed.</p>
               </div>
-            ) : (
-              <p className="muted">No forecast data available yet. Add sector indicators to enable outlook.</p>
-            )}
+              {selectedIssueArea === "all" ? (
+                renderPressingList(
+                  pressingOverall,
+                  "No worsening signals yet across the current outlook window."
+                )
+              ) : (
+                <div className="pressing-tabs">
+                  <div className="tab-row">
+                    <button
+                      type="button"
+                      className={`tab ${pressingTab === "selected" ? "active" : ""}`}
+                      onClick={() => setPressingTab("selected")}
+                    >
+                      Selected focus: {selectedIssueLabel}
+                    </button>
+                    <button
+                      type="button"
+                      className={`tab ${pressingTab === "overall" ? "active" : ""}`}
+                      onClick={() => setPressingTab("overall")}
+                    >
+                      All sectors context
+                    </button>
+                  </div>
+                  <div className="tab-panel">
+                    {pressingTab === "selected"
+                      ? renderPressingList(
+                          pressingSelected,
+                          `No worsening signals in ${selectedIssueLabel} yet.`
+                        )
+                      : renderPressingList(
+                          pressingOverall,
+                          "No worsening signals yet across the current outlook window."
+                        )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <div className="card">
             <h2>Evidence</h2>

@@ -1,0 +1,129 @@
+# REPO_MAP
+
+## Repo tree (depth 4, filtered)
+
+Excluded from tree for brevity: `.git/`, `.venv/`, `.pytest_cache/`, `node_modules/`, `build/`, `dist/`.
+
+```
+??? app
+?   ??? core
+?   ?   ??? __init__.py
+?   ?   ??? citations.py
+?   ?   ??? policy_lens.py
+?   ?   ??? values.py
+?   ??? data
+?   ?   ??? fixtures
+?   ?   ??? loaders
+?   ?   ?   ??? __init__.py
+?   ?   ?   ??? base.py
+?   ?   ?   ??? bls.py
+?   ?   ?   ??? census_acs.py
+?   ?   ?   ??? fred.py
+?   ?   ??? __init__.py
+?   ?   ??? refresh.py
+?   ?   ??? registry.py
+?   ?   ??? sqlite.py
+?   ??? services
+?   ?   ??? __init__.py
+?   ?   ??? advisor.py
+?   ?   ??? forecast.py
+?   ?   ??? memo.py
+?   ?   ??? policy_engine.py
+?   ?   ??? policy_library.py
+?   ??? static
+?   ?   ??? assets
+?   ?   ?   ??? index-BNo-1l5Z.js
+?   ?   ?   ??? index-DIN6Sy4B.css
+?   ?   ??? index.html
+?   ??? __init__.py
+?   ??? main.py
+?   ??? models.py
+?   ??? packaged.py
+?   ??? web.py
+??? data
+?   ??? fixtures
+?   ?   ??? bls_unemployment
+?   ?   ?   ??? unemployment.csv
+?   ?   ??? census_acs_fl_county
+?   ?   ?   ??? acs_county.csv
+?   ?   ??? fred_macro
+?   ?       ??? fred_macro.csv
+?   ??? processed
+?   ?   ??? bls_unemployment
+?   ?   ?   ??? unemployment.csv
+?   ?   ??? census_acs_fl_county
+?   ?   ?   ??? acs_county.csv
+?   ?   ??? fred_macro
+?   ?       ??? fred_macro.csv
+?   ??? raw
+?   ??? admin_values.json
+?   ??? registry_state.json
+??? docs
+?   ??? ARCHITECTURE.md
+?   ??? PRD.md
+??? frontend
+?   ??? src
+?   ?   ??? App.jsx
+?   ?   ??? main.jsx
+?   ?   ??? styles.css
+?   ??? index.html
+?   ??? package-lock.json
+?   ??? package.json
+?   ??? vite.config.js
+??? installer
+?   ??? FloridaPolicyAdvisor.iss
+??? outputs
+?   ??? memos
+?       ??? .gitkeep
+??? scripts
+?   ??? build_installer.ps1
+?   ??? build_single_app.ps1
+?   ??? dev.ps1
+?   ??? refresh_data.ps1
+??? submission_evidence
+?   ??? LINE_HINTS.txt
+?   ??? REPO_TREE.txt
+?   ??? REPO_TREE_FILTERED.txt
+??? tests
+?   ??? test_api.py
+?   ??? test_citations.py
+??? .gitignore
+??? BuildApp.cmd
+??? DETAILED_GUIDE.txt
+??? FloridaPolicyAdvisor.spec
+??? README.md
+??? requirements-ml.txt
+??? requirements.txt
+```
+
+## Main entrypoints
+- Backend API: `app/main.py` (FastAPI app, route definitions, static file mounting).
+- Packaged desktop entry: `app/packaged.py` (starts Uvicorn + embedded desktop window).
+- Frontend entry: `frontend/src/main.jsx` (React root + `App` mount).
+- Dev launcher: `scripts/dev.ps1` (starts backend + Vite dev server).
+- Packaged build: `scripts/build_single_app.ps1` (builds frontend, bundles into `app/static`, runs PyInstaller).
+- Installer build: `scripts/build_installer.ps1` + `BuildApp.cmd` (Inno Setup packaging).
+
+## API routes (from `app/main.py`)
+- `GET /health`
+- `GET /api/datasets`
+- `POST /api/refresh`
+- `POST /api/advice`
+- `POST /api/memo`
+- SPA/static: `/` and `/{path:path}` when `app/static` exists
+
+## Core services
+- Advice orchestration: `app/services/advisor.py` (`generate_advice`, `build_evidence`, `build_citations`).
+- Forecasting: `app/services/forecast.py` (`generate_outlook`, metric registry, forecasting models).
+- Policy scoring + bundles: `app/services/policy_engine.py` (`rank_policies`, `_score_policy`, `_pressure_scores`).
+- Policy library: `app/services/policy_library.py` (static policy definitions + effects).
+- Memo generation: `app/services/memo.py` (markdown memo construction + save).
+
+## Data registry + loaders
+- Dataset metadata registry: `app/data/registry.py` (`DATASETS`, `registry_state.json`).
+- Dataset refresh dispatcher: `app/data/refresh.py` and `app/data/loaders/*` (BLS, ACS, FRED only).
+- Admin weights: `data/admin_values.json` (sector/objective weights, lens bias, feasibility/risk weights).
+
+## Frontend entry
+- Root: `frontend/src/main.jsx` ? renders `frontend/src/App.jsx`.
+- Styles: `frontend/src/styles.css`.

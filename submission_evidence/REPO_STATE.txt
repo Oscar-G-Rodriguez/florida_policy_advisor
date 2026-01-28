@@ -1,0 +1,49 @@
+﻿git rev-parse HEAD:
+e6db7634868acfc7e7f5e9d6b2e57ffd9f4284b8
+
+git status -sb:
+## main...origin/main
+ M FloridaPolicyAdvisor.spec
+ M README.md
+ M app/models.py
+ M app/packaged.py
+ M app/services/forecast.py
+ M app/services/memo.py
+ M app/services/policy_engine.py
+ D app/static/assets/index-BU5X0u_2.css
+ D app/static/assets/index-DAbqv-Xx.js
+ M app/static/index.html
+ M build/FloridaPolicyAdvisor/Analysis-00.toc
+ M build/FloridaPolicyAdvisor/EXE-00.toc
+ M build/FloridaPolicyAdvisor/FloridaPolicyAdvisor.pkg
+ M build/FloridaPolicyAdvisor/PKG-00.toc
+ M build/FloridaPolicyAdvisor/PYZ-00.pyz
+ M build/FloridaPolicyAdvisor/PYZ-00.toc
+ M build/FloridaPolicyAdvisor/base_library.zip
+ M build/FloridaPolicyAdvisor/warn-FloridaPolicyAdvisor.txt
+ M build/FloridaPolicyAdvisor/xref-FloridaPolicyAdvisor.html
+ D dist/FloridaPolicyAdvisor-Setup.exe
+ M dist/FloridaPolicyAdvisor.exe
+ M frontend/src/App.jsx
+ M frontend/src/styles.css
+ M requirements.txt
+ M scripts/build_single_app.ps1
+ D scripts/check_packaged.ps1
+?? app/static/assets/index-BNo-1l5Z.js
+?? app/static/assets/index-DIN6Sy4B.css
+?? scripts/export_openapi.py
+?? scripts/generate_sample_advice.py
+?? submission_evidence/
+
+git log -1 --oneline:
+e6db763 V1 COMPLETE
+
+python --version:
+Python 3.14.0
+pip --version:
+pip 25.3 from C:\Users\Oscar\AppData\Roaming\Python\Python314\site-packages\pip (python 3.14)
+
+node --version:
+v24.11.1
+npm --version:
+11.6.2

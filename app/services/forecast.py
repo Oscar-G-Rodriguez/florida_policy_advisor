@@ -520,8 +520,8 @@ def _build_feature_table(request: AdviceRequest) -> Tuple[pd.DataFrame, Dict[str
     return combined, specs, citations
 
 
-def _classify_direction(predicted: float, baseline: Optional[float], preference: str) -> str:
-    if baseline is None:
+def _classify_direction(predicted: Optional[float], baseline: Optional[float], preference: str) -> str:
+    if predicted is None or baseline is None:
         return "unclear"
     delta = predicted - baseline
     if abs(delta) <= (abs(baseline) * 0.02 + 1e-6):
@@ -539,9 +539,9 @@ def _format_horizon_label(time_horizon: str) -> str:
 
 def _build_outlook_summary(items: List[ForecastItem], issue_area: str) -> str:
     if issue_area == "all":
-        relevant = items
+        relevant = [item for item in items if item.status == "available"]
     else:
-        relevant = [item for item in items if item.sector == issue_area]
+        relevant = [item for item in items if item.sector == issue_area and item.status == "available"]
     if not relevant:
         return "Outlook coverage is limited; add more sector indicators to expand foresight."
     worsening = sum(1 for item in relevant if item.direction == "worsening")
@@ -559,7 +559,7 @@ def _compute_urgency(items: List[ForecastItem]) -> float:
         return 0.0
     scores = []
     for item in worsening:
-        if item.baseline_value is None:
+        if item.baseline_value is None or item.predicted_value is None:
             continue
         scale = abs(item.baseline_value) or 1.0
         change = abs(item.predicted_value - item.baseline_value) / scale
@@ -573,6 +573,7 @@ def generate_outlook(request: AdviceRequest) -> Tuple[List[ForecastItem], str, f
     horizon_months = HORIZON_MONTHS.get(request.time_horizon, 12)
     items: List[ForecastItem] = []
     model_notes: List[str] = []
+    included_metrics: set[str] = set()
 
     feature_table, specs, citations_map = _build_feature_table(request)
     multifactor_predictions: Dict[str, List[float]] = {}
@@ -620,8 +621,28 @@ def generate_outlook(request: AdviceRequest) -> Tuple[List[ForecastItem], str, f
             unit=spec.unit,
             direction=direction,
             citations=metric_citations,
+            status="available",
             method_note=model_note,
         ))
+        included_metrics.add(spec.metric_id)
+
+    if request.issue_area == "all":
+        for spec in METRICS:
+            if spec.metric_id in included_metrics:
+                continue
+            items.append(ForecastItem(
+                metric_id=spec.metric_id,
+                sector=spec.sector,
+                metric=spec.metric,
+                horizon=_format_horizon_label(request.time_horizon),
+                predicted_value=None,
+                baseline_value=None,
+                unit=spec.unit,
+                direction="unavailable",
+                citations=[],
+                status="missing",
+                method_note="No data available for this metric yet.",
+            ))
 
     summary = _build_outlook_summary(items, request.issue_area)
     if request.issue_area == "all":

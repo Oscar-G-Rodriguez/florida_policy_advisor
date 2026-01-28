@@ -1,12 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
+
+datas = [('app\\static', 'app\\static'), ('data', 'data'), ('outputs', 'outputs')]
+binaries = []
+hiddenimports = ['webview.platforms.edgechromium']
+tmp_ret = collect_all('webview')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 
 a = Analysis(
     ['app\\packaged.py'],
     pathex=[],
-    binaries=[],
-    datas=[('app\\static', 'app\\static'), ('data', 'data'), ('outputs', 'outputs')],
-    hiddenimports=[],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

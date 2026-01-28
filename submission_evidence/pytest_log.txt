@@ -1,0 +1,10 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.3.3, pluggy-1.6.0
+rootdir: C:\Users\Oscar\Documents\GitHub\florida_policy_advisor
+plugins: anyio-4.12.1
+collected 3 items
+
+tests\test_api.py ..                                                     [ 66%]
+tests\test_citations.py .                                                [100%]
+
+============================== 3 passed in 1.15s ==============================

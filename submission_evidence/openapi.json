@@ -1,0 +1,731 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Florida Policy Advisor",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets": {
+      "get": {
+        "summary": "Datasets",
+        "operationId": "datasets_api_datasets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Datasets Api Datasets Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/refresh": {
+      "post": {
+        "summary": "Refresh",
+        "operationId": "refresh_api_refresh_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Refresh Api Refresh Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/advice": {
+      "post": {
+        "summary": "Advice",
+        "operationId": "advice_api_advice_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdviceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdviceResponse-Output"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/memo": {
+      "post": {
+        "summary": "Memo",
+        "operationId": "memo_api_memo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdviceRequest": {
+        "properties": {
+          "issue_area": {
+            "type": "string",
+            "title": "Issue Area"
+          },
+          "geography": {
+            "$ref": "#/components/schemas/Geography"
+          },
+          "time_horizon": {
+            "type": "string",
+            "title": "Time Horizon"
+          },
+          "budget_sensitivity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Budget Sensitivity"
+          },
+          "policy_lens": {
+            "type": "string",
+            "title": "Policy Lens"
+          },
+          "objective_mode": {
+            "type": "string",
+            "enum": [
+              "improve",
+              "stabilize",
+              "resilience"
+            ],
+            "title": "Objective Mode",
+            "default": "improve"
+          },
+          "objectives": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "improve",
+                    "stabilize",
+                    "resilience"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Objectives"
+          }
+        },
+        "type": "object",
+        "required": [
+          "issue_area",
+          "geography",
+          "time_horizon",
+          "budget_sensitivity",
+          "policy_lens"
+        ],
+        "title": "AdviceRequest"
+      },
+      "AdviceResponse-Input": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "outlook_summary": {
+            "type": "string",
+            "title": "Outlook Summary",
+            "default": ""
+          },
+          "outlook": {
+            "items": {
+              "$ref": "#/components/schemas/ForecastItem"
+            },
+            "type": "array",
+            "title": "Outlook",
+            "default": []
+          },
+          "forecast_info": {
+            "type": "string",
+            "title": "Forecast Info",
+            "default": ""
+          },
+          "objectives": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Objectives",
+            "default": {}
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceItem"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyOption"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "policy_bundles": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyBundle"
+            },
+            "type": "array",
+            "title": "Policy Bundles",
+            "default": []
+          },
+          "risks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risks"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "title": "Citations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "summary",
+          "evidence",
+          "options",
+          "risks",
+          "citations"
+        ],
+        "title": "AdviceResponse"
+      },
+      "AdviceResponse-Output": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "outlook_summary": {
+            "type": "string",
+            "title": "Outlook Summary",
+            "default": ""
+          },
+          "outlook": {
+            "items": {
+              "$ref": "#/components/schemas/ForecastItem"
+            },
+            "type": "array",
+            "title": "Outlook",
+            "default": []
+          },
+          "forecast_info": {
+            "type": "string",
+            "title": "Forecast Info",
+            "default": ""
+          },
+          "objectives": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Objectives",
+            "default": {}
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceItem"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyOption"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "policy_bundles": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyBundle"
+            },
+            "type": "array",
+            "title": "Policy Bundles",
+            "default": []
+          },
+          "risks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risks"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "title": "Citations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "summary",
+          "evidence",
+          "options",
+          "risks",
+          "citations"
+        ],
+        "title": "AdviceResponse"
+      },
+      "Citation": {
+        "properties": {
+          "citation_id": {
+            "type": "string",
+            "title": "Citation Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "retrieval_date": {
+            "type": "string",
+            "title": "Retrieval Date"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "citation_id",
+          "dataset_id",
+          "url",
+          "retrieval_date"
+        ],
+        "title": "Citation"
+      },
+      "EvidenceItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "claim": {
+            "type": "string",
+            "title": "Claim"
+          },
+          "citations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Citations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "claim",
+          "citations"
+        ],
+        "title": "EvidenceItem"
+      },
+      "ForecastItem": {
+        "properties": {
+          "metric_id": {
+            "type": "string",
+            "title": "Metric Id"
+          },
+          "sector": {
+            "type": "string",
+            "title": "Sector"
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "horizon": {
+            "type": "string",
+            "title": "Horizon"
+          },
+          "predicted_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Predicted Value"
+          },
+          "baseline_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "direction": {
+            "type": "string",
+            "title": "Direction"
+          },
+          "citations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Citations"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "available"
+          },
+          "method_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric_id",
+          "sector",
+          "metric",
+          "horizon",
+          "direction",
+          "citations"
+        ],
+        "title": "ForecastItem"
+      },
+      "Geography": {
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "state",
+              "county"
+            ],
+            "title": "Level"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value",
+            "description": "State name or county FIPS/name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "level",
+          "value"
+        ],
+        "title": "Geography"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MemoRequest": {
+        "properties": {
+          "inputs": {
+            "$ref": "#/components/schemas/AdviceRequest"
+          },
+          "advice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdviceResponse-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "inputs"
+        ],
+        "title": "MemoRequest"
+      },
+      "MemoResponse": {
+        "properties": {
+          "memo_path": {
+            "type": "string",
+            "title": "Memo Path"
+          },
+          "memo_markdown": {
+            "type": "string",
+            "title": "Memo Markdown"
+          }
+        },
+        "type": "object",
+        "required": [
+          "memo_path",
+          "memo_markdown"
+        ],
+        "title": "MemoResponse"
+      },
+      "PolicyBundle": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyOption"
+            },
+            "type": "array",
+            "title": "Policies"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          },
+          "tradeoffs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tradeoffs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "policies",
+          "score",
+          "rationale",
+          "tradeoffs"
+        ],
+        "title": "PolicyBundle"
+      },
+      "PolicyOption": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "pros": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pros"
+          },
+          "cons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cons"
+          },
+          "implementation_notes": {
+            "type": "string",
+            "title": "Implementation Notes"
+          },
+          "sectors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sectors",
+            "default": []
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "pros",
+          "cons",
+          "implementation_notes"
+        ],
+        "title": "PolicyOption"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

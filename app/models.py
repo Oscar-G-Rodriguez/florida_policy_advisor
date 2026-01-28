@@ -49,11 +49,12 @@ class ForecastItem(BaseModel):
     sector: str
     metric: str
     horizon: str
-    predicted_value: float
+    predicted_value: Optional[float] = None
     baseline_value: Optional[float] = None
     unit: Optional[str] = None
     direction: str
     citations: List[str]
+    status: str = "available"
     method_note: Optional[str] = None
 
 

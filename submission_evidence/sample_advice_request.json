@@ -1,0 +1,10 @@
+{
+  "issue_area": "labor_market",
+  "geography": {
+    "level": "state",
+    "value": "Florida"
+  },
+  "time_horizon": "near_term",
+  "budget_sensitivity": 0.5,
+  "policy_lens": "market"
+}

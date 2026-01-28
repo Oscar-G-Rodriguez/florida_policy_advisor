@@ -47,7 +47,7 @@ def _pressure_scores(outlook: List[ForecastItem], objectives: Dict[str, str]) ->
     values = load_admin_values()
     pressures: Dict[str, float] = {}
     for item in outlook:
-        if item.baseline_value is None:
+        if item.baseline_value is None or item.predicted_value is None:
             continue
         context = METRIC_CONTEXT.get(item.metric_id)
         if context is None:
