@@ -48,6 +48,10 @@ def render_memo(request: AdviceRequest, advice: AdviceResponse) -> str:
         "## Executive summary",
         advice.summary,
         "",
+        "## Data and scoring limitations",
+        advice.data_notice,
+        "Policy rankings and bundle scores are heuristic prioritization aids, not estimates of causal policy effects.",
+        "",
         "## Evidence",
     ])
 
@@ -65,6 +69,7 @@ def render_memo(request: AdviceRequest, advice: AdviceResponse) -> str:
         memo_lines.append("- Pros: " + "; ".join(option.pros))
         memo_lines.append("- Cons: " + "; ".join(option.cons))
         memo_lines.append(f"- Implementation notes: {option.implementation_notes}")
+        memo_lines.append(f"- Scoring note: {option.scoring_note}")
         memo_lines.append("")
 
     memo_lines.append("## Risks and considerations")
@@ -77,6 +82,7 @@ def render_memo(request: AdviceRequest, advice: AdviceResponse) -> str:
         for bundle in advice.policy_bundles:
             memo_lines.append(f"### {bundle.name}")
             memo_lines.append(f"- Score: {bundle.score}")
+            memo_lines.append(f"- Scoring note: {bundle.scoring_note}")
             memo_lines.append(f"- Rationale: {bundle.rationale}")
             if bundle.tradeoffs:
                 memo_lines.append(f"- Tradeoffs: {', '.join(bundle.tradeoffs)}")
@@ -102,6 +108,8 @@ def render_memo(request: AdviceRequest, advice: AdviceResponse) -> str:
                     f"- {item.metric} ({item.sector}, {item.horizon}): "
                     f"{item.predicted_value:.2f}{unit} ({item.direction}). {citations}"
                 )
+            if item.evaluation_note:
+                memo_lines.append(f"  - Evaluation: {item.evaluation_note}")
     if advice.forecast_info:
         memo_lines.append("")
         memo_lines.append(f"Forecast info: {advice.forecast_info}")

@@ -1,233 +1,90 @@
 # Florida Policy Advisor
 
-A local-first policy analysis app that generates evidence-backed advice, multi-sector forecasts, and prioritized policy bundles. Designed for Windows and non-technical users.
+Florida Policy Advisor is a local Windows application for exploring a narrow, traceable set of Florida policy indicators and heuristic policy options. The application was authored by its developer for the Congressional App Challenge, then withdrawn before submission for personal reasons. It was not submitted, judged, placed, or externally validated by the competition.
 
----
+## What works today
 
-## Quick start (dev)
+- **Supported live sectors:** labor market (BLS and FRED unemployment), housing (Census ACS county indicators), and fiscal outlook (FRED Florida real GDP).
+- **Clear provenance:** every result identifies `live`, `fixture`, `mixed`, or `unknown` data. The bundled fixture is visibly marked as offline sample data and is never described as current analysis.
+- **Traceable outputs:** numeric evidence and forecasts link to a dataset ID, source URL, and retrieval date. Memos carry the same citations and source-mode notice.
+- **Data-quality evidence:** each refresh records row counts, schema fingerprint, required-field null rates, duplicate-key rows, invalid-value rows, date coverage, and per-series coverage.
+- **Conservative forecasts:** the application uses only naÃ¯ve-last-value and linear-trend baselines, selected using chronological holdouts with MAE and RMSE. Forecasts are withheld when the time series is too short or the requested horizon is too long.
+- **Heuristic policy ranking:** options and bundles are transparent prioritization aids. They are not estimates of causal policy effects, and the configured impact weights are not empirical effect sizes.
+
+Other sectors in the historical registry are intentionally shown as unavailable. They do not have active loaders or supported end-to-end analysis paths.
+
+## Run locally
+
+Prerequisites: Python 3.11+ and Node.js 18+.
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 cd frontend
-npm install
+npm ci
 cd ..
 .\scripts\dev.ps1
 ```
-- Backend: http://127.0.0.1:8000
-- Frontend: http://127.0.0.1:5173
 
----
+Open `http://127.0.0.1:5173`. The development UI calls the backend by default. It does not silently fall back to hard-coded output. To build an explicitly labeled visual demo only, set `VITE_DEMO_MODE=true` before building the frontend.
 
-## Full initialization guide (step-by-step)
+## Data modes and refresh
 
-### 1) Prerequisites
-- Python 3.11+ (3.12 recommended)
-- Node.js 18+
+The repository includes small deterministic fixtures for tests and offline demonstrations. They are not live data. Refresh supported sources with:
 
-### 2) Create a virtual environment
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-### 3) Install backend dependencies
-```powershell
-pip install -r requirements.txt
-```
-
-### 4) Install frontend dependencies
-```powershell
-cd frontend
-npm install
-cd ..
-```
-
-### 5) Run the app (dev)
-```powershell
-.\scripts\dev.ps1
-```
-
-### 6) (Optional) Add API keys
-Create a `.env` file in the repo root:
-```text
-BLS_API_KEY=your_key
-CENSUS_API_KEY=your_key
-FRED_API_KEY=your_key
-```
-These keys are optional but recommended to refresh live datasets.
-
-### 7) Refresh datasets
 ```powershell
 .\scripts\refresh_data.ps1
 ```
 
----
+Use `POST /api/refresh?offline=true` to deliberately restore offline fixtures without calling external APIs. Live refreshes write raw responses under `data/raw/` (git-ignored) and update the source mode and retrieval date in `data/registry_state.json`.
 
-## Single-install app (Windows)
+Structural quality and freshness are separate: a dataset can pass schema, null, duplicate, and value checks while still being stale or fixture-backed. `source_age_days`, source mode, and retrieval date make that distinction explicit.
 
-### Build a single EXE
+Optional environment variables:
+
+```text
+BLS_API_KEY=optional_bls_key
+CENSUS_API_KEY=optional_census_key
+FRED_API_KEY=required_for_live_fred_refresh
+ACS_YEARS=2020,2021,2022,2023,2024
+CORS_ORIGINS=http://localhost:5173
+```
+
+## Verify
+
+```powershell
+pytest -q
+cd frontend
+npm run build
+```
+
+Generate a reproducible data-quality artifact:
+
+```powershell
+python .\scripts\validate_data.py
+python .\scripts\report_forecast_validation.py
+```
+
+The backend test suite is offline and fixture-backed. See [docs/VALIDATION.md](docs/VALIDATION.md) and [portfolio evidence](portfolio_evidence/README.md) for the exact checks, expected baseline behavior, sample API request, quality and forecast-validation artifacts, and browser smoke-test checklist.
+
+## Package for Windows
+
 ```powershell
 .\scripts\build_single_app.ps1
 ```
-Output:
-- `dist\FloridaPolicyAdvisor.exe`
 
-Notes:
-- The packaged app launches in an embedded desktop window (no browser).
-- `pywebview` is required for the desktop UI and is installed via `requirements.txt`.
-- Install the Microsoft Edge WebView2 Runtime if the window does not appear.
+The packaged desktop app serves the compiled frontend from its bundled FastAPI backend. It therefore follows the API path by default; it does not select frontend demo mode. Install Microsoft Edge WebView2 if the desktop window cannot render.
 
-### Build a Windows installer (two clicks)
-- Double-click `BuildApp.cmd`
-- Then run `dist\FloridaPolicyAdvisor-Setup.exe`
+## Project map
 
-The installer creates a Start Menu entry and a desktop shortcut.
+- [Architecture and data flow](docs/ARCHITECTURE.md)
+- [Validation report and demo checklist](docs/VALIDATION.md)
+- `app/data/loaders/`: BLS, ACS, and FRED loaders
+- `app/services/forecast.py`: evaluated baseline forecasting rules
+- `app/core/citations.py`: citation and response guardrails
+- `app/services/memo.py`: cited memo export
 
----
+## Limitations
 
-## Frontend-only (no backend)
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-This runs in demo mode by default. To point at a deployed API:
-```powershell
-$env:VITE_API_BASE="https://your-api.example.com"
-$env:VITE_REQUIRE_API="true"
-npm run dev
-```
-
----
-
-## How the app works (detailed)
-
-### 1) Data ingestion
-The backend loads datasets from `data/processed/<dataset_id>/`:
-- If processed files exist, they are used directly.
-- If not, loaders pull from public APIs and cache raw + processed files.
-
-Key datasets (current):
-- BLS LAUS (unemployment)
-- FRED (GDP, unemployment)
-- Census ACS (income, rent, poverty, home value, vacancy, rent burden)
-
-Additional sector datasets are registered in `app/data/registry.py`. These can be loaded via:
-- Direct HTTP API loaders (future expansion)
-- Drop-in CSVs in `data/processed/<dataset_id>/metrics.csv`
-- Drop-in CSVs in `data/processed/<dataset_id>/<metric_id>.csv`
-
-### 2) Feature table + multi-factor forecast
-The forecasting pipeline builds a monthly-aligned feature table:
-- Each metric is resampled to monthly frequency.
-- All metrics are merged by date and forward-filled.
-- A multifactor neural model predicts the next step for all metrics at once.
-
-Forecast logic:
-- If CUDA is available and PyTorch is installed, a small MLP trains on GPU.
-- If CUDA is unavailable, the model falls back to CPU.
-- If multifactor prediction is not possible (too few features), a per-metric model is used instead.
-
-Key files:
-- `app/services/forecast.py`
-
-### 3) Objectives and administration values
-Each sector can have its own objective:
-- improve
-- stabilize
-- resilience
-
-These objectives affect how forecast “pressure” is computed.
-Administration weights are stored in:
-- `data/admin_values.json`
-
-You can adjust:
-- sector_weights
-- objective_weights
-- lens_bias
-- feasibility_weight
-- risk_weight
-
-### 4) Policy library and effects matrix
-Policies are stored in `app/services/policy_library.py` with:
-- cost, speed, equity, market, feasibility, risk
-- affected sectors
-- effects on metrics (positive or negative strength)
-
-### 5) Policy scoring and bundles
-The policy engine:
-- Converts forecast deltas into pressure scores
-- Applies objective weights and sector weights
-- Scores each policy using effects + lens + budget + feasibility
-- Builds multi-policy bundles (2–3 policies) and ranks them
-
-Key file:
-- `app/services/policy_engine.py`
-
-### 6) Evidence + citations
-Every numeric claim must have a dataset citation.
-- Evidence is generated from datasets and included in the response.
-- Citations are validated server-side.
-
-Key files:
-- `app/core/citations.py`
-- `app/services/advisor.py`
-
-### 7) Outputs
-- Advice and memos are returned via API
-- Memos are saved to `outputs/memos/<timestamp>_<hash>/memo.md`
-
----
-
-## API reference (core endpoints)
-- `GET /health` — server status
-- `GET /api/datasets` — list datasets + refresh metadata
-- `POST /api/refresh` — refresh datasets
-- `POST /api/advice` — generate advice (multi-sector)
-- `POST /api/memo` — generate and save memo
-
-Example:
-```powershell
-curl -X POST http://127.0.0.1:8000/api/advice -H "Content-Type: application/json" -d "{\"issue_area\":\"all\",\"geography\":{\"level\":\"state\",\"value\":\"Florida\"},\"time_horizon\":\"near_term\",\"budget_sensitivity\":0.5,\"policy_lens\":\"market\",\"objective_mode\":\"improve\",\"objectives\":{\"housing\":\"improve\",\"fiscal\":\"stabilize\"}}"
-```
-
----
-
-## Environment variables
-Common:
-- `BLS_API_KEY`
-- `CENSUS_API_KEY`
-- `FRED_API_KEY`
-- `ACS_YEARS` (comma-separated years to pull)
-
-Forecasting:
-- `FORECAST_REQUIRE_CUDA=1` (fail if CUDA not available)
-
-CORS (for deployed frontend):
-- `CORS_ORIGINS=http://localhost:5173,https://your-frontend.example.com`
-
----
-
-## ML forecasting (CUDA)
-Install optional ML dependencies:
-```powershell
-pip install -r requirements-ml.txt
-```
-To use CUDA, replace the `torch==...` line in `requirements-ml.txt` with your CUDA wheel.
-
----
-
-## Tests
-```powershell
-.\.venv\Scripts\Activate.ps1
-pytest
-```
-
----
-
-## Troubleshooting
-- If datasets are empty, run `.\scripts\refresh_data.ps1`.
-- If forecasts are missing, ensure each metric has at least 3 time points.
-- If the installer is missing, rebuild with `BuildApp.cmd`.
-- If the desktop shortcut is missing, re-run the installer and keep “Create a desktop icon” checked.
+The tool is an educational prototype, not a decision system. Its fixture dataset is deliberately small; it produces no forecast from it. Even with live data, the forecasts are univariate statistical baselines and should not be used to infer causality or select policy without subject-matter review. ACS state output is only produced when all 67 Florida counties are present; county results remain county-specific.

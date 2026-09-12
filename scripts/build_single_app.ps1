@@ -9,7 +9,7 @@ if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
   throw "npm is required to build the frontend"
 }
 $env:VITE_API_BASE = ""
-$env:VITE_REQUIRE_API = "true"
+$env:VITE_DEMO_MODE = "false"
 if (-not (Test-Path "node_modules")) {
   npm install
 }

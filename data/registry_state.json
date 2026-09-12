@@ -1,14 +1,87 @@
 {
   "bls_unemployment": {
     "retrieval_date": "2026-01-15",
-    "last_refresh": "2026-01-15"
+    "last_refresh": "2026-09-12",
+    "data_mode": "fixture",
+    "last_error": "Network refresh disabled.",
+    "quality": {
+      "dataset_id": "bls_unemployment",
+      "row_count": 3,
+      "column_count": 3,
+      "missing_columns": [],
+      "required_null_rates": {
+        "series_id": 0.0,
+        "date": 0.0,
+        "value": 0.0
+      },
+      "duplicate_key_rows": 0,
+      "invalid_value_rows": 0,
+      "date_range": {
+        "start": "2025-10-01",
+        "end": "2025-12-01"
+      },
+      "series_counts": {
+        "LAUST120000000000003": 3
+      },
+      "schema_fingerprint": "8dd7a435f438",
+      "status": "pass"
+    }
   },
   "census_acs_fl_county": {
     "retrieval_date": "2026-01-15",
-    "last_refresh": "2026-01-15"
+    "last_refresh": "2026-09-12",
+    "data_mode": "fixture",
+    "last_error": "Network refresh disabled.",
+    "quality": {
+      "dataset_id": "census_acs_fl_county",
+      "row_count": 9,
+      "column_count": 13,
+      "missing_columns": [],
+      "required_null_rates": {
+        "county_fips": 0.0,
+        "county_name": 0.0,
+        "year": 0.0,
+        "median_household_income": 0.0,
+        "median_gross_rent": 0.0
+      },
+      "duplicate_key_rows": 0,
+      "invalid_value_rows": 0,
+      "date_range": {
+        "start": "2020-01-01",
+        "end": "2022-01-01"
+      },
+      "series_counts": {},
+      "schema_fingerprint": "781444412c37",
+      "status": "pass"
+    }
   },
   "fred_macro": {
     "retrieval_date": "2026-01-15",
-    "last_refresh": "2026-01-15"
+    "last_refresh": "2026-09-12",
+    "data_mode": "fixture",
+    "last_error": "Network refresh disabled.",
+    "quality": {
+      "dataset_id": "fred_macro",
+      "row_count": 6,
+      "column_count": 4,
+      "missing_columns": [],
+      "required_null_rates": {
+        "series_id": 0.0,
+        "date": 0.0,
+        "value": 0.0
+      },
+      "duplicate_key_rows": 0,
+      "invalid_value_rows": 0,
+      "date_range": {
+        "start": "2022-01-01",
+        "end": "2025-12-01"
+      },
+      "series_counts": {
+        "FLNGSP": 3,
+        "FLUR": 3
+      },
+      "schema_fingerprint": "0aa52999cdb8",
+      "status": "pass"
+    }
   }
 }

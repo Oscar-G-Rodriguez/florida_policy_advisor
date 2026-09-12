@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import logging
 from datetime import date
 from typing import Dict
 
@@ -8,10 +9,12 @@ import pandas as pd
 import requests
 
 from app.data.loaders.base import ensure_dir, fixture_path, processed_path, raw_path
+from app.data.quality import assess_dataset
 from app.data.sqlite import write_table
-from app.data.registry import update_dataset_refresh
+from app.data.registry import get_dataset_metadata, update_dataset_refresh
 
 CENSUS_BASE = "https://api.census.gov/data"
+LOGGER = logging.getLogger(__name__)
 
 
 def _process_acs_json(data: list) -> pd.DataFrame:
@@ -67,12 +70,13 @@ def refresh(allow_network: bool = True) -> Dict[str, str]:
     if years_env:
         years = [year.strip() for year in years_env.split(",") if year.strip()]
     else:
-        years = [os.getenv("ACS_YEAR", "2022")]
+        years = [str(year) for year in range(2015, 2025)]
     api_key = os.getenv("CENSUS_API_KEY")
     today = date.today()
 
     processed_file = processed_path(dataset_id, "acs_county.csv")
     ensure_dir(processed_file.parent)
+    refresh_error = "No usable rows returned by Census ACS."
 
     if allow_network and not os.getenv("FORCE_OFFLINE"):
         try:
@@ -112,10 +116,16 @@ def refresh(allow_network: bool = True) -> Dict[str, str]:
                 raw_file.write_text(pd.Series(raw_payload).to_json())
                 combined.to_csv(processed_file, index=False)
                 write_table(combined, dataset_id)
-                update_dataset_refresh(dataset_id, today.isoformat())
+                update_dataset_refresh(dataset_id, today.isoformat(), data_mode="live", quality=assess_dataset(dataset_id, combined))
                 return {"dataset_id": dataset_id, "status": "downloaded", "rows": str(len(combined))}
-        except Exception:
-            pass
+        except requests.RequestException as exc:
+            LOGGER.warning("ACS refresh failed; using fixture if available: %s", exc)
+            refresh_error = str(exc)
+        except (ValueError, KeyError, TypeError) as exc:
+            LOGGER.warning("ACS response could not be processed; using fixture if available: %s", exc)
+            refresh_error = str(exc)
+    else:
+        refresh_error = "Network refresh disabled."
 
     fixture = fixture_path(dataset_id, "acs_county.csv")
     if fixture:
@@ -123,12 +133,9 @@ def refresh(allow_network: bool = True) -> Dict[str, str]:
         raw_file = raw_path(dataset_id, "fixture.csv")
         ensure_dir(raw_file.parent)
         raw_file.write_text(fixture.read_text())
-        try:
-            df = pd.read_csv(processed_file)
-            write_table(df, dataset_id)
-        except Exception:
-            pass
-        update_dataset_refresh(dataset_id, today.isoformat())
-        return {"dataset_id": dataset_id, "status": "cached", "rows": "fixture"}
+        df = pd.read_csv(processed_file)
+        write_table(df, dataset_id)
+        update_dataset_refresh(dataset_id, get_dataset_metadata(dataset_id)["retrieval_date"], data_mode="fixture", last_error=refresh_error, quality=assess_dataset(dataset_id, df))
+        return {"dataset_id": dataset_id, "status": "fixture", "rows": str(len(df)), "error": refresh_error}
 
     return {"dataset_id": dataset_id, "status": "failed", "rows": "0"}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -28,7 +28,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health() -> dict:
-    return {"status": "ok"}
+    return {"status": "ok", "supported_sectors": ["labor_market", "housing", "fiscal"]}
 
 
 @app.get("/api/datasets")
@@ -37,8 +37,8 @@ async def datasets() -> dict:
 
 
 @app.post("/api/refresh")
-async def refresh() -> dict:
-    results = refresh_all(allow_network=True)
+async def refresh(offline: bool = Query(False, description="Use packaged fixtures and do not call external APIs.")) -> dict:
+    results = refresh_all(allow_network=not offline)
     return {"status": "completed", "results": results}
 
 

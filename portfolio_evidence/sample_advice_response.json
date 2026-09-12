@@ -1,129 +1,45 @@
 {
   "summary": "Evidence indicates labor market conditions that merit near-term monitoring and targeted actions.",
-  "outlook_summary": "Outlook suggests rising pressure in the selected sector over the chosen horizon.",
+  "outlook_summary": "No evaluated forecast is available for this request. Inspect the data-mode notice and refresh or add a longer time series.",
   "outlook": [
     {
       "metric_id": "labor_unemployment_bls",
       "sector": "labor_market",
       "metric": "Unemployment rate (BLS)",
       "horizon": "near term",
-      "predicted_value": 3.900000174840288,
+      "predicted_value": null,
       "baseline_value": 3.2,
       "unit": "%",
-      "direction": "worsening",
+      "direction": "unavailable",
       "citations": [
         "bls_unemployment"
       ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
+      "status": "unavailable",
+      "method_note": "Needs at least 12 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
     },
     {
       "metric_id": "labor_unemployment_fred",
       "sector": "labor_market",
       "metric": "Unemployment rate (FRED)",
       "horizon": "near term",
-      "predicted_value": 3.900000174840288,
+      "predicted_value": null,
       "baseline_value": 3.2,
       "unit": "%",
-      "direction": "worsening",
+      "direction": "unavailable",
       "citations": [
         "fred_macro"
       ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
-    },
-    {
-      "metric_id": "fiscal_real_gdp",
-      "sector": "fiscal",
-      "metric": "Real GDP",
-      "horizon": "near term",
-      "predicted_value": 1335987.3333333337,
-      "baseline_value": 1267890.0,
-      "unit": "USD",
-      "direction": "improving",
-      "citations": [
-        "fred_macro"
-      ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
-    },
-    {
-      "metric_id": "housing_median_rent",
-      "sector": "housing",
-      "metric": "Median gross rent",
-      "horizon": "near term",
-      "predicted_value": 1835.5554199218757,
-      "baseline_value": 1600.0,
-      "unit": "USD",
-      "direction": "worsening",
-      "citations": [
-        "census_acs_fl_county"
-      ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
-    },
-    {
-      "metric_id": "housing_rent_burden",
-      "sector": "housing",
-      "metric": "Rent-to-income ratio",
-      "horizon": "near term",
-      "predicted_value": 0.3140556017557783,
-      "baseline_value": 0.30893333333333334,
-      "unit": "ratio",
-      "direction": "stable",
-      "citations": [
-        "census_acs_fl_county"
-      ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
-    },
-    {
-      "metric_id": "housing_vacancy_rate",
-      "sector": "housing",
-      "metric": "Housing vacancy rate",
-      "horizon": "near term",
-      "predicted_value": 0.040333331873019504,
-      "baseline_value": 0.052,
-      "unit": "ratio",
-      "direction": "worsening",
-      "citations": [
-        "census_acs_fl_county"
-      ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
-    },
-    {
-      "metric_id": "housing_home_value",
-      "sector": "housing",
-      "metric": "Median home value",
-      "horizon": "near term",
-      "predicted_value": 372777.82291666657,
-      "baseline_value": 308333.3333333333,
-      "unit": "USD",
-      "direction": "worsening",
-      "citations": [
-        "census_acs_fl_county"
-      ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
-    },
-    {
-      "metric_id": "general_population",
-      "sector": "general",
-      "metric": "Population",
-      "horizon": "near term",
-      "predicted_value": 1911666.9999999995,
-      "baseline_value": 1783333.3333333333,
-      "unit": "count",
-      "direction": "improving",
-      "citations": [
-        "census_acs_fl_county"
-      ],
-      "status": "available",
-      "method_note": "Numpy linear fallback"
+      "status": "unavailable",
+      "method_note": "Needs at least 12 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
     }
   ],
-  "forecast_info": "Numpy linear fallback",
+  "forecast_info": "Forecasts use chronological baseline evaluation when minimum-data and horizon rules are met; otherwise they are withheld.",
   "objectives": {
     "labor_market": "improve"
   },
@@ -133,13 +49,6 @@
       "claim": "Florida unemployment rate was 3.2% in 2025-12.",
       "citations": [
         "bls_unemployment"
-      ]
-    },
-    {
-      "label": "State output",
-      "claim": "Florida real GDP was 1,267,890 in 2024-01-01.",
-      "citations": [
-        "fred_macro"
       ]
     }
   ],
@@ -160,7 +69,8 @@
       "impact": {
         "labor_unemployment_bls": 0.35,
         "labor_unemployment_fred": 0.3
-      }
+      },
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     },
     {
       "title": "Small business capital access",
@@ -173,13 +83,12 @@
       ],
       "implementation_notes": "Partner with community lenders and incubators.",
       "sectors": [
-        "business_dynamism",
         "labor_market"
       ],
       "impact": {
-        "business_startup_rate": 0.35,
         "labor_unemployment_fred": 0.1
-      }
+      },
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     },
     {
       "title": "Talent attraction and retention",
@@ -192,31 +101,12 @@
       ],
       "implementation_notes": "Pair with housing affordability and job growth efforts.",
       "sectors": [
-        "demographics",
         "labor_market"
       ],
       "impact": {
-        "demographics_net_migration": 0.3,
         "labor_unemployment_bls": 0.1
-      }
-    },
-    {
-      "title": "Performance budgeting and program reallocation",
-      "description": "Reallocate spending toward high-impact programs and sunset low-impact ones.",
-      "pros": [
-        "Improves return on public spending."
-      ],
-      "cons": [
-        "Requires strong data and stakeholder alignment."
-      ],
-      "implementation_notes": "Use outcome targets and multi-year reviews.",
-      "sectors": [
-        "fiscal",
-        "general"
-      ],
-      "impact": {
-        "fiscal_real_gdp": 0.1
-      }
+      },
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     },
     {
       "title": "Sector-based upskilling and apprenticeships",
@@ -229,15 +119,13 @@
       ],
       "implementation_notes": "Pair training with employer commitments and wraparound supports.",
       "sectors": [
-        "labor_market",
-        "education"
+        "labor_market"
       ],
       "impact": {
         "labor_unemployment_bls": 0.25,
-        "labor_unemployment_fred": 0.2,
-        "education_grad_rate": 0.15,
-        "business_startup_rate": 0.1
-      }
+        "labor_unemployment_fred": 0.2
+      },
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     },
     {
       "title": "Childcare and transportation access",
@@ -257,7 +145,8 @@
         "labor_unemployment_bls": 0.2,
         "labor_unemployment_fred": 0.2,
         "housing_rent_burden": 0.15
-      }
+      },
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     },
     {
       "title": "Behavioral health access expansion",
@@ -270,13 +159,12 @@
       ],
       "implementation_notes": "Invest in provider pipeline and telehealth.",
       "sectors": [
-        "health",
         "labor_market"
       ],
       "impact": {
-        "health_chronic_rate": 0.2,
         "labor_unemployment_fred": 0.1
-      }
+      },
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     }
   ],
   "policy_bundles": [
@@ -299,7 +187,8 @@
           "impact": {
             "labor_unemployment_bls": 0.35,
             "labor_unemployment_fred": 0.3
-          }
+          },
+          "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
         },
         {
           "title": "Small business capital access",
@@ -312,21 +201,21 @@
           ],
           "implementation_notes": "Partner with community lenders and incubators.",
           "sectors": [
-            "business_dynamism",
             "labor_market"
           ],
           "impact": {
-            "business_startup_rate": 0.35,
             "labor_unemployment_fred": 0.1
-          }
+          },
+          "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
         }
       ],
-      "score": 0.684,
-      "rationale": "Targets labor_unemployment_fred, labor_unemployment_bls, business_startup_rate",
-      "tradeoffs": []
+      "score": 0.005,
+      "rationale": "Targets labor_unemployment_bls, labor_unemployment_fred",
+      "tradeoffs": [],
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     },
     {
-      "name": "Rapid employer outreach and placement support + Small business capital access + Sector-based upskilling and apprenticeships",
+      "name": "Rapid employer outreach and placement support + Talent attraction and retention",
       "policies": [
         {
           "title": "Rapid employer outreach and placement support",
@@ -344,55 +233,35 @@
           "impact": {
             "labor_unemployment_bls": 0.35,
             "labor_unemployment_fred": 0.3
-          }
+          },
+          "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
         },
         {
-          "title": "Small business capital access",
-          "description": "Expand loan guarantees and technical assistance for small businesses.",
+          "title": "Talent attraction and retention",
+          "description": "Incentivize in-migration of skilled workers and retain graduates.",
           "pros": [
-            "Supports entrepreneurship and job creation."
+            "Strengthens labor supply and innovation base."
           ],
           "cons": [
-            "Requires underwriting discipline and oversight."
+            "Requires sustained incentives and quality-of-life investments."
           ],
-          "implementation_notes": "Partner with community lenders and incubators.",
+          "implementation_notes": "Pair with housing affordability and job growth efforts.",
           "sectors": [
-            "business_dynamism",
             "labor_market"
           ],
           "impact": {
-            "business_startup_rate": 0.35,
-            "labor_unemployment_fred": 0.1
-          }
-        },
-        {
-          "title": "Sector-based upskilling and apprenticeships",
-          "description": "Expand short-cycle credentials and apprenticeships aligned to regional demand.",
-          "pros": [
-            "Improves long-term earnings and mobility."
-          ],
-          "cons": [
-            "Training pipelines take time to scale."
-          ],
-          "implementation_notes": "Pair training with employer commitments and wraparound supports.",
-          "sectors": [
-            "labor_market",
-            "education"
-          ],
-          "impact": {
-            "labor_unemployment_bls": 0.25,
-            "labor_unemployment_fred": 0.2,
-            "education_grad_rate": 0.15,
-            "business_startup_rate": 0.1
-          }
+            "labor_unemployment_bls": 0.1
+          },
+          "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
         }
       ],
-      "score": 0.677,
-      "rationale": "Targets labor_unemployment_fred, labor_unemployment_bls, business_startup_rate",
-      "tradeoffs": []
+      "score": -0.05,
+      "rationale": "Targets labor_unemployment_bls, labor_unemployment_fred",
+      "tradeoffs": [],
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     },
     {
-      "name": "Rapid employer outreach and placement support + Sector-based upskilling and apprenticeships",
+      "name": "Rapid employer outreach and placement support + Small business capital access + Talent attraction and retention",
       "policies": [
         {
           "title": "Rapid employer outreach and placement support",
@@ -410,62 +279,81 @@
           "impact": {
             "labor_unemployment_bls": 0.35,
             "labor_unemployment_fred": 0.3
-          }
+          },
+          "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
         },
         {
-          "title": "Sector-based upskilling and apprenticeships",
-          "description": "Expand short-cycle credentials and apprenticeships aligned to regional demand.",
+          "title": "Small business capital access",
+          "description": "Expand loan guarantees and technical assistance for small businesses.",
           "pros": [
-            "Improves long-term earnings and mobility."
+            "Supports entrepreneurship and job creation."
           ],
           "cons": [
-            "Training pipelines take time to scale."
+            "Requires underwriting discipline and oversight."
           ],
-          "implementation_notes": "Pair training with employer commitments and wraparound supports.",
+          "implementation_notes": "Partner with community lenders and incubators.",
           "sectors": [
-            "labor_market",
-            "education"
+            "labor_market"
           ],
           "impact": {
-            "labor_unemployment_bls": 0.25,
-            "labor_unemployment_fred": 0.2,
-            "education_grad_rate": 0.15,
-            "business_startup_rate": 0.1
-          }
+            "labor_unemployment_fred": 0.1
+          },
+          "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
+        },
+        {
+          "title": "Talent attraction and retention",
+          "description": "Incentivize in-migration of skilled workers and retain graduates.",
+          "pros": [
+            "Strengthens labor supply and innovation base."
+          ],
+          "cons": [
+            "Requires sustained incentives and quality-of-life investments."
+          ],
+          "implementation_notes": "Pair with housing affordability and job growth efforts.",
+          "sectors": [
+            "labor_market"
+          ],
+          "impact": {
+            "labor_unemployment_bls": 0.1
+          },
+          "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
         }
       ],
-      "score": 0.642,
-      "rationale": "Targets labor_unemployment_bls, labor_unemployment_fred, education_grad_rate",
-      "tradeoffs": []
+      "score": -0.07,
+      "rationale": "Targets labor_unemployment_bls, labor_unemployment_fred",
+      "tradeoffs": [],
+      "scoring_note": "Heuristic ranking; it is not an estimate of policy impact or causality."
     }
   ],
   "risks": [
     "Short-term actions may not address longer-term structural constraints.",
     "Capacity limitations could slow implementation without coordinated partners.",
     "Data is subject to revision; monitor updates during implementation.",
-    "Forward-looking indicators can shift quickly; revisit the plan as new forecasts arrive."
+    "Forecasts are evaluated statistical baselines, not estimates of policy impact or causal effects.",
+    "Policy scores and impact weights are heuristic prioritization inputs, not empirical effect sizes."
   ],
   "citations": [
-    {
-      "citation_id": "census_acs_fl_county",
-      "dataset_id": "census_acs_fl_county",
-      "url": "https://api.census.gov/data.html",
-      "retrieval_date": "2026-01-15",
-      "note": "Census ACS 5-year Florida County Indicators"
-    },
     {
       "citation_id": "bls_unemployment",
       "dataset_id": "bls_unemployment",
       "url": "https://api.bls.gov/publicAPI/v2/timeseries/data/",
       "retrieval_date": "2026-01-15",
-      "note": "BLS State Unemployment Rate (Florida)"
+      "note": "BLS State Unemployment Rate (Florida)",
+      "geography": "Florida",
+      "date_range": "2025-10 to 2025-12",
+      "data_mode": "fixture"
     },
     {
       "citation_id": "fred_macro",
       "dataset_id": "fred_macro",
       "url": "https://api.stlouisfed.org/fred/",
       "retrieval_date": "2026-01-15",
-      "note": "FRED Florida Macro Series"
+      "note": "FRED Florida Macro Series",
+      "geography": "Florida",
+      "date_range": "2022-01-01 to 2025-12-01",
+      "data_mode": "fixture"
     }
-  ]
+  ],
+  "data_mode": "fixture",
+  "data_notice": "OFFLINE FIXTURE DATA: this output uses packaged sample data, not a live API refresh. Do not treat it as current analysis."
 }

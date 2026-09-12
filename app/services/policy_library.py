@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import List, Dict
 
+from app.services.forecast import METRICS, SUPPORTED_SECTORS
+
 POLICY_OPTIONS: List[Dict[str, object]] = [
     {
         "id": "rapid_employer_outreach",
@@ -389,10 +391,16 @@ POLICY_OPTIONS: List[Dict[str, object]] = [
 
 
 def get_policy_options(issue_area: str) -> List[Dict[str, object]]:
-    if issue_area == "all":
-        return POLICY_OPTIONS.copy()
-    filtered = [
-        policy for policy in POLICY_OPTIONS
-        if issue_area in policy.get("sectors", []) or "general" in policy.get("sectors", [])
-    ]
-    return filtered or POLICY_OPTIONS.copy()
+    allowed_metrics = {spec.metric_id for spec in METRICS}
+    selected_sectors = SUPPORTED_SECTORS if issue_area == "all" else {issue_area}
+    filtered = []
+    for policy in POLICY_OPTIONS:
+        sectors = [sector for sector in policy.get("sectors", []) if sector in SUPPORTED_SECTORS]
+        if not set(sectors).intersection(selected_sectors):
+            continue
+        filtered.append({
+            **policy,
+            "sectors": sectors,
+            "effects": {metric: effect for metric, effect in (policy.get("effects", {}) or {}).items() if metric in allowed_metrics},
+        })
+    return filtered

@@ -11,7 +11,7 @@ from app.main import app  # noqa: E402
 
 
 def main() -> None:
-    output_path = Path("submission_evidence") / "openapi.json"
+    output_path = Path("portfolio_evidence") / "openapi.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(app.openapi(), indent=2), encoding="utf-8")
 

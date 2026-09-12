@@ -36,3 +36,13 @@ def test_citation_validator_rejects_uncited_numeric():
 
     with pytest.raises(ValueError):
         validate_response_citations(response)
+
+
+def test_citation_validator_rejects_unknown_citation_id():
+    response = AdviceResponse(
+        summary="No numbers here.",
+        evidence=[EvidenceItem(label="Test", claim="A sourced statement.", citations=["missing"])],
+        citations=[Citation(citation_id="bls_unemployment", dataset_id="bls_unemployment", url="https://api.bls.gov/publicAPI/v2/timeseries/data/", retrieval_date="2026-01-15")],
+    )
+    with pytest.raises(ValueError, match="unknown citation_id"):
+        validate_response_citations(response)

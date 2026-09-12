@@ -1,0 +1,134 @@
+{
+  "generated_at": "2026-09-12",
+  "forecast_count": 7,
+  "available_count": 0,
+  "withheld_count": 7,
+  "forecasts": [
+    {
+      "metric_id": "labor_unemployment_bls",
+      "sector": "labor_market",
+      "metric": "Unemployment rate (BLS)",
+      "horizon": "near term",
+      "predicted_value": null,
+      "baseline_value": 3.2,
+      "unit": "%",
+      "direction": "unavailable",
+      "citations": [
+        "bls_unemployment"
+      ],
+      "status": "unavailable",
+      "method_note": "Needs at least 12 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
+    },
+    {
+      "metric_id": "labor_unemployment_fred",
+      "sector": "labor_market",
+      "metric": "Unemployment rate (FRED)",
+      "horizon": "near term",
+      "predicted_value": null,
+      "baseline_value": 3.2,
+      "unit": "%",
+      "direction": "unavailable",
+      "citations": [
+        "fred_macro"
+      ],
+      "status": "unavailable",
+      "method_note": "Needs at least 12 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
+    },
+    {
+      "metric_id": "fiscal_real_gdp",
+      "sector": "fiscal",
+      "metric": "Real GDP",
+      "horizon": "near term",
+      "predicted_value": null,
+      "baseline_value": 1267890.0,
+      "unit": "millions of chained dollars",
+      "direction": "unavailable",
+      "citations": [
+        "fred_macro"
+      ],
+      "status": "unavailable",
+      "method_note": "Needs at least 6 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
+    },
+    {
+      "metric_id": "housing_median_rent",
+      "sector": "housing",
+      "metric": "Median gross rent",
+      "horizon": "near term",
+      "predicted_value": null,
+      "baseline_value": 1725.0,
+      "unit": "USD",
+      "direction": "unavailable",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "unavailable",
+      "method_note": "Needs at least 6 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
+    },
+    {
+      "metric_id": "housing_rent_burden",
+      "sector": "housing",
+      "metric": "Rent-to-income ratio",
+      "horizon": "near term",
+      "predicted_value": null,
+      "baseline_value": 0.3319,
+      "unit": "ratio",
+      "direction": "unavailable",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "unavailable",
+      "method_note": "Needs at least 6 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
+    },
+    {
+      "metric_id": "housing_vacancy_rate",
+      "sector": "housing",
+      "metric": "Housing vacancy rate",
+      "horizon": "near term",
+      "predicted_value": null,
+      "baseline_value": 0.056,
+      "unit": "ratio",
+      "direction": "unavailable",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "unavailable",
+      "method_note": "Needs at least 6 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
+    },
+    {
+      "metric_id": "housing_home_value",
+      "sector": "housing",
+      "metric": "Median home value",
+      "horizon": "near term",
+      "predicted_value": null,
+      "baseline_value": 340000.0,
+      "unit": "USD",
+      "direction": "unavailable",
+      "citations": [
+        "census_acs_fl_county"
+      ],
+      "status": "unavailable",
+      "method_note": "Needs at least 6 observations at this frequency; found 3.",
+      "evaluation_note": null,
+      "uncertainty": null,
+      "validation_metrics": {}
+    }
+  ]
+}

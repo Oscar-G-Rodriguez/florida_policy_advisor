@@ -11,7 +11,7 @@ class Geography(BaseModel):
 
 
 class AdviceRequest(BaseModel):
-    issue_area: str
+    issue_area: Literal["all", "labor_market", "housing", "fiscal"]
     geography: Geography
     time_horizon: str
     budget_sensitivity: float = Field(..., ge=0.0, le=1.0)
@@ -26,22 +26,26 @@ class Citation(BaseModel):
     url: str
     retrieval_date: str
     note: Optional[str] = None
+    geography: Optional[str] = None
+    date_range: Optional[str] = None
+    data_mode: Literal["live", "fixture", "unknown"] = "unknown"
 
 
 class EvidenceItem(BaseModel):
     label: str
     claim: str
-    citations: List[str]
+    citations: List[str] = Field(default_factory=list)
 
 
 class PolicyOption(BaseModel):
     title: str
     description: str
-    pros: List[str]
-    cons: List[str]
+    pros: List[str] = Field(default_factory=list)
+    cons: List[str] = Field(default_factory=list)
     implementation_notes: str
-    sectors: List[str] = []
+    sectors: List[str] = Field(default_factory=list)
     impact: Optional[Dict[str, float]] = None
+    scoring_note: str = "Heuristic ranking; it is not an estimate of policy impact or causality."
 
 
 class ForecastItem(BaseModel):
@@ -53,30 +57,36 @@ class ForecastItem(BaseModel):
     baseline_value: Optional[float] = None
     unit: Optional[str] = None
     direction: str
-    citations: List[str]
-    status: str = "available"
+    citations: List[str] = Field(default_factory=list)
+    status: Literal["available", "limited", "unavailable"] = "available"
     method_note: Optional[str] = None
+    evaluation_note: Optional[str] = None
+    uncertainty: Optional[float] = None
+    validation_metrics: Dict[str, float] = Field(default_factory=dict)
 
 
 class PolicyBundle(BaseModel):
     name: str
-    policies: List[PolicyOption]
+    policies: List[PolicyOption] = Field(default_factory=list)
     score: float
     rationale: str
-    tradeoffs: List[str]
+    tradeoffs: List[str] = Field(default_factory=list)
+    scoring_note: str = "Heuristic ranking; it is not an estimate of policy impact or causality."
 
 
 class AdviceResponse(BaseModel):
     summary: str
     outlook_summary: str = ""
-    outlook: List[ForecastItem] = []
+    outlook: List[ForecastItem] = Field(default_factory=list)
     forecast_info: str = ""
-    objectives: Dict[str, str] = {}
-    evidence: List[EvidenceItem]
-    options: List[PolicyOption]
-    policy_bundles: List[PolicyBundle] = []
-    risks: List[str]
-    citations: List[Citation]
+    objectives: Dict[str, str] = Field(default_factory=dict)
+    evidence: List[EvidenceItem] = Field(default_factory=list)
+    options: List[PolicyOption] = Field(default_factory=list)
+    policy_bundles: List[PolicyBundle] = Field(default_factory=list)
+    risks: List[str] = Field(default_factory=list)
+    citations: List[Citation] = Field(default_factory=list)
+    data_mode: Literal["live", "fixture", "mixed", "unknown"] = "unknown"
+    data_notice: str = ""
 
 
 class MemoRequest(BaseModel):

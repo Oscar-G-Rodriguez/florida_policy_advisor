@@ -4,7 +4,7 @@ import json
 from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -15,6 +15,7 @@ class DatasetDefinition:
     url: str
     license: str
     refresh_method: str
+    supported: bool = False
 
 
 DATASETS: Dict[str, DatasetDefinition] = {
@@ -25,6 +26,7 @@ DATASETS: Dict[str, DatasetDefinition] = {
         url="https://api.bls.gov/publicAPI/v2/timeseries/data/",
         license="Public domain",
         refresh_method="HTTP API",
+        supported=True,
     ),
     "census_acs_fl_county": DatasetDefinition(
         dataset_id="census_acs_fl_county",
@@ -33,6 +35,7 @@ DATASETS: Dict[str, DatasetDefinition] = {
         url="https://api.census.gov/data.html",
         license="Public domain",
         refresh_method="HTTP API",
+        supported=True,
     ),
     "fred_macro": DatasetDefinition(
         dataset_id="fred_macro",
@@ -41,6 +44,7 @@ DATASETS: Dict[str, DatasetDefinition] = {
         url="https://api.stlouisfed.org/fred/",
         license="FRED Terms of Use",
         refresh_method="HTTP API",
+        supported=True,
     ),
     "nces_ccd_grad": DatasetDefinition(
         dataset_id="nces_ccd_grad",
@@ -136,18 +140,21 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 REGISTRY_STATE_PATH = ROOT_DIR / "data" / "registry_state.json"
 
 
-def _default_state() -> Dict[str, Dict[str, str]]:
+def _default_state() -> Dict[str, Dict[str, Any]]:
     today = date.today().isoformat()
     return {
         dataset_id: {
             "retrieval_date": today,
             "last_refresh": today,
+            "data_mode": "unknown",
+            "last_error": "",
+            "quality": {},
         }
         for dataset_id in DATASETS
     }
 
 
-def _load_state() -> Dict[str, Dict[str, str]]:
+def _load_state() -> Dict[str, Dict[str, Any]]:
     if not REGISTRY_STATE_PATH.exists():
         state = _default_state()
         REGISTRY_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -156,12 +163,19 @@ def _load_state() -> Dict[str, Dict[str, str]]:
     return json.loads(REGISTRY_STATE_PATH.read_text())
 
 
-def _save_state(state: Dict[str, Dict[str, str]]) -> None:
+def _save_state(state: Dict[str, Dict[str, Any]]) -> None:
     REGISTRY_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     REGISTRY_STATE_PATH.write_text(json.dumps(state, indent=2))
 
 
-def list_datasets() -> List[Dict[str, str]]:
+def _freshness_days(retrieval_date: str) -> Optional[int]:
+    try:
+        return max(0, (date.today() - date.fromisoformat(retrieval_date)).days)
+    except (TypeError, ValueError):
+        return None
+
+
+def list_datasets() -> List[Dict[str, Any]]:
     state = _load_state()
     datasets = []
     for dataset_id, definition in DATASETS.items():
@@ -170,22 +184,34 @@ def list_datasets() -> List[Dict[str, str]]:
             **asdict(definition),
             "retrieval_date": dataset_state.get("retrieval_date", "unknown"),
             "last_refresh": dataset_state.get("last_refresh", "unknown"),
+            "data_mode": dataset_state.get("data_mode", "unknown"),
+            "availability": "supported" if definition.supported else "unavailable",
+            "last_error": dataset_state.get("last_error", ""),
+            "quality": dataset_state.get("quality", {}),
+            "source_age_days": _freshness_days(dataset_state.get("retrieval_date", "")),
         })
     return datasets
 
 
-def update_dataset_refresh(dataset_id: str, retrieval_date: str) -> None:
+def update_dataset_refresh(dataset_id: str, retrieval_date: str, data_mode: str = "live", last_error: str = "", quality: Optional[Dict[str, Any]] = None) -> None:
     state = _load_state()
     state.setdefault(dataset_id, {})
     state[dataset_id]["retrieval_date"] = retrieval_date
     state[dataset_id]["last_refresh"] = date.today().isoformat()
+    state[dataset_id]["data_mode"] = data_mode
+    state[dataset_id]["last_error"] = last_error
+    state[dataset_id]["quality"] = quality or {}
     _save_state(state)
 
 
-def get_dataset_metadata(dataset_id: str) -> Dict[str, str]:
+def get_dataset_metadata(dataset_id: str) -> Dict[str, Any]:
     definition = DATASETS[dataset_id]
     state = _load_state().get(dataset_id, {})
     return {
         **asdict(definition),
         "retrieval_date": state.get("retrieval_date", "unknown"),
+        "data_mode": state.get("data_mode", "unknown"),
+        "last_error": state.get("last_error", ""),
+        "quality": state.get("quality", {}),
+        "source_age_days": _freshness_days(state.get("retrieval_date", "")),
     }

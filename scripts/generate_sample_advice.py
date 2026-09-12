@@ -13,7 +13,7 @@ from app.main import app  # noqa: E402
 
 
 def main() -> None:
-    output_dir = Path("submission_evidence")
+    output_dir = Path("portfolio_evidence")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     request_payload = {

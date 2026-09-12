@@ -619,6 +619,34 @@ button.tab:not(:disabled):hover {
   margin-top: 6px;
 }
 
+.mode-note,
+.data-notice {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.mode-note strong,
+.data-notice strong {
+  color: var(--text);
+}
+
+.data-notice.fixture,
+.data-notice.mixed,
+.data-notice.unknown {
+  border-color: rgba(180, 83, 9, 0.45);
+  background: rgba(251, 191, 36, 0.16);
+}
+
+.data-notice.live {
+  border-color: rgba(22, 163, 74, 0.35);
+  background: rgba(34, 197, 94, 0.1);
+}
+
 .results .card:nth-child(1) {
   animation-delay: 0.05s;
 }

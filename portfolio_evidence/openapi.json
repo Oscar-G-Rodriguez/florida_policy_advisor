@@ -47,6 +47,20 @@
       "post": {
         "summary": "Refresh",
         "operationId": "refresh_api_refresh_post",
+        "parameters": [
+          {
+            "name": "offline",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Use packaged fixtures and do not call external APIs.",
+              "default": false,
+              "title": "Offline"
+            },
+            "description": "Use packaged fixtures and do not call external APIs."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -55,6 +69,16 @@
                 "schema": {
                   "type": "object",
                   "title": "Response Refresh Api Refresh Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -137,6 +161,59 @@
           }
         }
       }
+    },
+    "/": {
+      "get": {
+        "summary": "Serve Index",
+        "operationId": "serve_index__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{path}": {
+      "get": {
+        "summary": "Serve Spa",
+        "operationId": "serve_spa__path__get",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -145,6 +222,12 @@
         "properties": {
           "issue_area": {
             "type": "string",
+            "enum": [
+              "all",
+              "labor_market",
+              "housing",
+              "fiscal"
+            ],
             "title": "Issue Area"
           },
           "geography": {
@@ -220,8 +303,7 @@
               "$ref": "#/components/schemas/ForecastItem"
             },
             "type": "array",
-            "title": "Outlook",
-            "default": []
+            "title": "Outlook"
           },
           "forecast_info": {
             "type": "string",
@@ -233,8 +315,7 @@
               "type": "string"
             },
             "type": "object",
-            "title": "Objectives",
-            "default": {}
+            "title": "Objectives"
           },
           "evidence": {
             "items": {
@@ -255,8 +336,7 @@
               "$ref": "#/components/schemas/PolicyBundle"
             },
             "type": "array",
-            "title": "Policy Bundles",
-            "default": []
+            "title": "Policy Bundles"
           },
           "risks": {
             "items": {
@@ -271,15 +351,27 @@
             },
             "type": "array",
             "title": "Citations"
+          },
+          "data_mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "fixture",
+              "mixed",
+              "unknown"
+            ],
+            "title": "Data Mode",
+            "default": "unknown"
+          },
+          "data_notice": {
+            "type": "string",
+            "title": "Data Notice",
+            "default": ""
           }
         },
         "type": "object",
         "required": [
-          "summary",
-          "evidence",
-          "options",
-          "risks",
-          "citations"
+          "summary"
         ],
         "title": "AdviceResponse"
       },
@@ -299,8 +391,7 @@
               "$ref": "#/components/schemas/ForecastItem"
             },
             "type": "array",
-            "title": "Outlook",
-            "default": []
+            "title": "Outlook"
           },
           "forecast_info": {
             "type": "string",
@@ -312,8 +403,7 @@
               "type": "string"
             },
             "type": "object",
-            "title": "Objectives",
-            "default": {}
+            "title": "Objectives"
           },
           "evidence": {
             "items": {
@@ -334,8 +424,7 @@
               "$ref": "#/components/schemas/PolicyBundle"
             },
             "type": "array",
-            "title": "Policy Bundles",
-            "default": []
+            "title": "Policy Bundles"
           },
           "risks": {
             "items": {
@@ -350,15 +439,27 @@
             },
             "type": "array",
             "title": "Citations"
+          },
+          "data_mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "fixture",
+              "mixed",
+              "unknown"
+            ],
+            "title": "Data Mode",
+            "default": "unknown"
+          },
+          "data_notice": {
+            "type": "string",
+            "title": "Data Notice",
+            "default": ""
           }
         },
         "type": "object",
         "required": [
-          "summary",
-          "evidence",
-          "options",
-          "risks",
-          "citations"
+          "summary"
         ],
         "title": "AdviceResponse"
       },
@@ -390,6 +491,38 @@
               }
             ],
             "title": "Note"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geography"
+          },
+          "date_range": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Range"
+          },
+          "data_mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "fixture",
+              "unknown"
+            ],
+            "title": "Data Mode",
+            "default": "unknown"
           }
         },
         "type": "object",
@@ -422,8 +555,7 @@
         "type": "object",
         "required": [
           "label",
-          "claim",
-          "citations"
+          "claim"
         ],
         "title": "EvidenceItem"
       },
@@ -491,6 +623,11 @@
           },
           "status": {
             "type": "string",
+            "enum": [
+              "available",
+              "limited",
+              "unavailable"
+            ],
             "title": "Status",
             "default": "available"
           },
@@ -504,6 +641,35 @@
               }
             ],
             "title": "Method Note"
+          },
+          "evaluation_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Note"
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty"
+          },
+          "validation_metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Validation Metrics"
           }
         },
         "type": "object",
@@ -512,8 +678,7 @@
           "sector",
           "metric",
           "horizon",
-          "direction",
-          "citations"
+          "direction"
         ],
         "title": "ForecastItem"
       },
@@ -620,15 +785,18 @@
             },
             "type": "array",
             "title": "Tradeoffs"
+          },
+          "scoring_note": {
+            "type": "string",
+            "title": "Scoring Note",
+            "default": "Heuristic ranking; it is not an estimate of policy impact or causality."
           }
         },
         "type": "object",
         "required": [
           "name",
-          "policies",
           "score",
-          "rationale",
-          "tradeoffs"
+          "rationale"
         ],
         "title": "PolicyBundle"
       },
@@ -665,8 +833,7 @@
               "type": "string"
             },
             "type": "array",
-            "title": "Sectors",
-            "default": []
+            "title": "Sectors"
           },
           "impact": {
             "anyOf": [
@@ -681,14 +848,17 @@
               }
             ],
             "title": "Impact"
+          },
+          "scoring_note": {
+            "type": "string",
+            "title": "Scoring Note",
+            "default": "Heuristic ranking; it is not an estimate of policy impact or causality."
           }
         },
         "type": "object",
         "required": [
           "title",
           "description",
-          "pros",
-          "cons",
           "implementation_notes"
         ],
         "title": "PolicyOption"
