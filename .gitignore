@@ -3,13 +3,11 @@ __pycache__/
 *.pyc
 node_modules/
 frontend/dist/
+build/
+dist/
+installer/dist/
+FloridaPolicyAdvisor.spec
 outputs/memos/*
 !outputs/memos/.gitkeep
 *.db
 data/raw/
-.claude/
-plan.md
-PRD.md
-ralph.ps1
-PROMPT.md
-activity.md

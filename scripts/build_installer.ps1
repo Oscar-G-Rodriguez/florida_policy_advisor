@@ -17,4 +17,4 @@ if ($npx) {
   }
   iscc $iss
 }
-Write-Host "Installer built at dist\FloridaPolicyAdvisor-Setup.exe"
+Write-Host "Installer built at installer\dist\FloridaPolicyAdvisor-Setup.exe"
